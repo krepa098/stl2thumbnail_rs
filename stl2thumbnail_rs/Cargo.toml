@@ -1,6 +1,6 @@
 [package]
 name = "stl2thumbnail"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Paul <krepa098@gmail.com>"]
 edition = "2018"
 build = "build.rs"
@@ -15,10 +15,10 @@ path = "src/main.rs"
 
 [dependencies]
 clap = "2.34.0"
-png = "0.17"
+png = "0.17.11"
 gif = "0.13.1"
 glm = { package = "nalgebra-glm", version = "0.18.0" }
-scan_fmt = "0.2"
+scan_fmt = "0.2.6"
 anyhow = "1.0"
 byteorder = "1.4"
 

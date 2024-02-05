@@ -1,7 +1,7 @@
 use crate::mesh::*;
-use anyhow::*;
+use anyhow::Result;
 use byteorder::{LittleEndian, ReadBytesExt};
-use scan_fmt::*;
+use scan_fmt::scan_fmt;
 use std::fs;
 use std::io;
 use std::io::{BufRead, BufReader, Read, Seek, SeekFrom};
