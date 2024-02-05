@@ -11,6 +11,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      # Install latest stable rust toolchain
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
       # checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
