@@ -1,6 +1,6 @@
 FROM archlinux:latest as build-stage
 
-RUN pacman -Syyu --noconfirm --needed archlinux-keyring
+RUN pacman -Syyu --noconfirm --needed archlinux-keyring sudo
 
 # create a build user
 RUN useradd -m builder && \
