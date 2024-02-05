@@ -39,11 +39,12 @@ impl AABB {
     }
 
     pub fn apply_transform(&mut self, transform: &Mat4) {
-        self.lower = matmul(&transform, &self.lower);
-        self.upper = matmul(&transform, &self.upper);
+        self.lower = matmul(transform, &self.lower);
+        self.upper = matmul(transform, &self.upper);
     }
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
 

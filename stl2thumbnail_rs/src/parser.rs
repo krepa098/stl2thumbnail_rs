@@ -38,9 +38,9 @@ impl<T: Read + Seek> Parser<T> {
                 header_length = HEADER_SIZE + 4; // header size + triangle count (u32)
             }
             StlType::Ascii => {
-                while let Some(line) = read_ascii_line(&mut reader).ok() {
+                while let Ok(line) = read_ascii_line(&mut reader) {
                     if line.starts_with("solid") {
-                        header_length = reader.seek(SeekFrom::Current(0))? as u64;
+                        header_length = reader.stream_position()?;
                         break;
                     }
                 }
@@ -195,9 +195,9 @@ mod test {
     use crate::parser::Parser;
     use std::io::Cursor;
 
-    const TRI_BIN: &'static [u8] = include_bytes!("test_models/triangle.stl");
-    const TRI_ASCII: &'static [u8] = include_bytes!("test_models/triangle_ascii.stl");
-    const TRI_ASCII_BROKEN: &'static [u8] = include_bytes!("test_models/triangle_ascii_broken.stl");
+    const TRI_BIN: &[u8] = include_bytes!("test_models/triangle.stl");
+    const TRI_ASCII: &[u8] = include_bytes!("test_models/triangle_ascii.stl");
+    const TRI_ASCII_BROKEN: &[u8] = include_bytes!("test_models/triangle_ascii_broken.stl");
 
     #[test]
     fn parser_ascii_test() {

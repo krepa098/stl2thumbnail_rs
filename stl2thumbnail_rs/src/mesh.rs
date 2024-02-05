@@ -11,7 +11,7 @@ pub type Vec4 = glm::Vec4;
 
 // helpers
 pub fn matmul(m: &Mat4, v: &Vec3) -> Vec3 {
-    (m * Vec4::new(v.x, v.y, v.z, 1.0)).xyz()
+    (m * v.to_homogeneous()).xyz()
 }
 
 // Triangle
@@ -28,24 +28,30 @@ impl Triangle {
 }
 
 // Mesh
-pub struct Mesh(Vec<Triangle>);
+pub struct Mesh {
+    triangles: Vec<Triangle>,
+}
 
 impl Mesh {
-    pub fn new(data: Vec<Triangle>) -> Self {
-        Self { 0: data }
+    pub fn new(triangles: Vec<Triangle>) -> Self {
+        Self { triangles }
     }
 }
 
 impl Mesh {
     pub fn len(&self) -> usize {
-        self.0.len()
+        self.triangles.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.triangles.is_empty()
     }
 }
 
 impl Index<usize> for Mesh {
     type Output = Triangle;
     fn index(&self, index: usize) -> &Self::Output {
-        &self.0[index]
+        &self.triangles[index]
     }
 }
 
@@ -60,7 +66,7 @@ impl<'a> IntoIterator for &'a Mesh {
 
     fn into_iter(self) -> Self::IntoIter {
         Self::IntoIter {
-            mesh: self.0.as_slice(),
+            mesh: &self.triangles,
             i: 0,
         }
     }
@@ -96,7 +102,7 @@ pub struct LazyMeshIter<'a, T: Read + Seek> {
     parser: &'a RefCell<&'a mut Parser<T>>,
 }
 
-impl<'a, 'b, T: Read + Seek> IntoIterator for &'a LazyMesh<'a, T> {
+impl<'a, T: Read + Seek> IntoIterator for &'a LazyMesh<'a, T> {
     type Item = Triangle;
     type IntoIter = LazyMeshIter<'a, T>;
 

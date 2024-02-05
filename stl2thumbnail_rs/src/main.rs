@@ -9,14 +9,13 @@ mod zbuffer;
 
 use anyhow::Result;
 use encoder::*;
-use mesh::{LazyMesh, Mesh};
+use mesh::LazyMesh;
 use mesh::{Triangle, Vec3};
 use parser::Parser;
 use picture::Picture;
 use rasterbackend::RasterBackend;
 
 use clap::{App, Arg};
-use std::error::Error;
 use std::time::{Duration, Instant};
 
 struct Settings {

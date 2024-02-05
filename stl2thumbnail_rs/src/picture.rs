@@ -5,14 +5,14 @@ use crate::mesh::{Vec2, Vec4};
 use std::ops::{Add, Mul};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
-pub struct RGBA {
+pub struct Color {
     pub r: u8,
     pub g: u8,
     pub b: u8,
     pub a: u8,
 }
 
-impl RGBA {
+impl Color {
     pub fn alpha(&self, a: f32) -> Self {
         Self {
             r: self.r,
@@ -22,7 +22,7 @@ impl RGBA {
         }
     }
 
-    pub fn over(&self, b: RGBA) -> Self {
+    pub fn over(&self, b: Color) -> Self {
         // draw self over b
         // Porter-Duff algorithm
         let alpha_a = self.a as f32 / 255.0;
@@ -35,8 +35,8 @@ impl RGBA {
     }
 }
 
-impl Mul<f32> for RGBA {
-    type Output = RGBA;
+impl Mul<f32> for Color {
+    type Output = Color;
 
     fn mul(self, rhs: f32) -> Self::Output {
         Self::Output {
@@ -48,16 +48,16 @@ impl Mul<f32> for RGBA {
     }
 }
 
-impl Mul<f32> for &RGBA {
-    type Output = RGBA;
+impl Mul<f32> for &Color {
+    type Output = Color;
 
     fn mul(self, rhs: f32) -> Self::Output {
         *self * rhs
     }
 }
 
-impl Add for RGBA {
-    type Output = RGBA;
+impl Add for Color {
+    type Output = Color;
 
     fn add(self, rhs: Self) -> Self::Output {
         Self::Output {
@@ -69,7 +69,7 @@ impl Add for RGBA {
     }
 }
 
-impl From<(u8, u8, u8, u8)> for RGBA {
+impl From<(u8, u8, u8, u8)> for Color {
     fn from(rgba: (u8, u8, u8, u8)) -> Self {
         Self {
             r: rgba.0,
@@ -80,7 +80,7 @@ impl From<(u8, u8, u8, u8)> for RGBA {
     }
 }
 
-impl From<(f32, f32, f32, f32)> for RGBA {
+impl From<(f32, f32, f32, f32)> for Color {
     fn from(rgba: (f32, f32, f32, f32)) -> Self {
         Self {
             r: (rgba.0.min(1.0).max(0.0) * 255.0) as u8,
@@ -91,7 +91,7 @@ impl From<(f32, f32, f32, f32)> for RGBA {
     }
 }
 
-impl From<&str> for RGBA {
+impl From<&str> for Color {
     fn from(rgba: &str) -> Self {
         assert_eq!(rgba.len(), 8, "expected format: 'RRGGBBAA'");
 
@@ -104,13 +104,13 @@ impl From<&str> for RGBA {
     }
 }
 
-impl From<&Vec4> for RGBA {
+impl From<&Vec4> for Color {
     fn from(vec: &Vec4) -> Self {
         Self {
-            r: (vec.x.min(1.0).max(0.0) * 255.0) as u8,
-            g: (vec.y.min(1.0).max(0.0) * 255.0) as u8,
-            b: (vec.z.min(1.0).max(0.0) * 255.0) as u8,
-            a: (vec.w.min(1.0).max(0.0) * 255.0) as u8,
+            r: (vec.x.clamp(0.0, 1.0) * 255.0) as u8,
+            g: (vec.y.clamp(0.0, 1.0) * 255.0) as u8,
+            b: (vec.z.clamp(0.0, 1.0) * 255.0) as u8,
+            a: (vec.w.clamp(0.0, 1.0) * 255.0) as u8,
         }
     }
 }
@@ -126,8 +126,7 @@ pub struct Picture {
 impl Picture {
     pub fn new(width: u32, height: u32) -> Self {
         let depth = 4;
-        let mut data = Vec::new();
-        data.resize((width * height * depth) as usize, 0);
+        let data = vec![0; (width * height * depth) as usize];
 
         let mut pic = Picture {
             data,
@@ -161,7 +160,7 @@ impl Picture {
     }
 
     pub fn to_bgra(&self) -> Vec<u8> {
-        let mut bgra = Vec::<u8>::with_capacity(self.data.len());
+        let mut bgra = Vec::with_capacity(self.data.len());
         for i in (0..self.data.len()).step_by(4) {
             bgra.push(self.data[i + 2]);
             bgra.push(self.data[i + 1]);
@@ -176,7 +175,7 @@ impl Picture {
         self.data.clone().into_boxed_slice()
     }
 
-    pub fn fill(&mut self, rgba: &RGBA) {
+    pub fn fill(&mut self, rgba: &Color) {
         for y in 0..self.height {
             for x in 0..self.width {
                 self.set(x, y, rgba);
@@ -184,14 +183,14 @@ impl Picture {
         }
     }
 
-    pub fn line(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, rgba: &RGBA) {
+    pub fn line(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, rgba: &Color) {
         // Bresenham's line algorithm
         let mut x = x0;
         let mut y = y0;
 
         let dx = (x1 - x0).abs();
         let sx = if x0 < x1 { 1 } else { -1 };
-        let dy = -(y1 as i32 - y0 as i32).abs();
+        let dy = -(y1 - y0).abs();
         let sy = if y0 < y1 { 1 } else { -1 };
         let mut err = dx + dy;
         loop {
@@ -212,7 +211,7 @@ impl Picture {
         }
     }
 
-    pub fn thick_line(&mut self, mut x0: i32, mut y0: i32, x1: i32, y1: i32, rgba: &RGBA, width: f32) {
+    pub fn thick_line(&mut self, mut x0: i32, mut y0: i32, x1: i32, y1: i32, rgba: &Color, width: f32) {
         // Anti-aliased thick line
         // Ref: http://members.chello.at/~easyfilter/bresenham.html
         let dx = (x1 - x0).abs();
@@ -273,7 +272,7 @@ impl Picture {
         }
     }
 
-    pub fn set(&mut self, x: u32, y: u32, rgba: &RGBA) {
+    pub fn set(&mut self, x: u32, y: u32, rgba: &Color) {
         if x >= self.width || y >= self.height {
             return;
         }
@@ -285,7 +284,7 @@ impl Picture {
         self.data[(stride * y + (x * self.depth) + 3) as usize] = rgba.a;
     }
 
-    pub fn alpha_blend(&mut self, x: u32, y: u32, rgba: RGBA) {
+    pub fn alpha_blend(&mut self, x: u32, y: u32, rgba: Color) {
         if x >= self.width || y >= self.height {
             return;
         }
@@ -297,9 +296,9 @@ impl Picture {
         self.set(x, y, &a.over(b));
     }
 
-    pub fn get(&self, x: u32, y: u32) -> RGBA {
+    pub fn get(&self, x: u32, y: u32) -> Color {
         let stride = self.stride();
-        RGBA {
+        Color {
             r: self.data[(stride * y + (x * self.depth)) as usize],
             g: self.data[(stride * y + (x * self.depth) + 1) as usize],
             b: self.data[(stride * y + (x * self.depth) + 2) as usize],
@@ -310,9 +309,9 @@ impl Picture {
     pub fn save(&self, path: &str) -> std::io::Result<()> {
         let file = std::fs::File::create(path)?;
         let buf = std::io::BufWriter::new(file);
-        let mut encoder = png::Encoder::new(buf, self.width as u32, self.height as u32);
+        let mut encoder = png::Encoder::new(buf, self.width, self.height);
 
-        encoder.set_color(png::ColorType::RGBA);
+        encoder.set_color(png::ColorType::Rgba);
         encoder.set_depth(png::BitDepth::Eight);
 
         let mut writer = encoder.write_header()?;
@@ -321,13 +320,13 @@ impl Picture {
         Ok(())
     }
 
-    pub fn stroke_string(&mut self, x: u32, y: u32, s: &str, char_size: f32, rgba: &RGBA) {
-        for (i, c) in s.chars().into_iter().enumerate() {
+    pub fn stroke_string(&mut self, x: u32, y: u32, s: &str, char_size: f32, rgba: &Color) {
+        for (i, c) in s.chars().enumerate() {
             self.stroke_letter(x + i as u32 * (char_size * 0.7 + 6.0) as u32, y, c, char_size, rgba);
         }
     }
 
-    pub fn stroke_letter(&mut self, x: u32, y: u32, c: char, char_size: f32, rgba: &RGBA) {
+    pub fn stroke_letter(&mut self, x: u32, y: u32, c: char, char_size: f32, rgba: &Color) {
         let points = match c {
             '0' => vec![
                 Vec2::new(0.0, 0.0),
@@ -464,7 +463,7 @@ impl Picture {
         }
     }
 
-    pub fn fill_rect(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, rgba: &RGBA) {
+    pub fn fill_rect(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, rgba: &Color) {
         for x in x0.max(0)..=x1.min(self.width as i32 - 1) {
             for y in y0.max(0)..=y1.min(self.height as i32 - 1) {
                 self.set(x as u32, y as u32, rgba);
@@ -473,15 +472,16 @@ impl Picture {
     }
 }
 
+#[allow(unused_imports)]
 mod tests {
     use super::*;
 
     #[test]
     fn test_rgba() {
-        let rgba: RGBA = (1.0, 0.5, -1.0, 2.0).into();
+        let rgba: Color = (1.0, 0.5, -1.0, 2.0).into();
         assert_eq!(rgba, (255, 127, 0, 255).into());
 
-        let rgba: RGBA = "FF00FF00".into();
+        let rgba: Color = "FF00FF00".into();
         assert_eq!(rgba, (255, 0, 255, 0).into());
     }
 
@@ -499,10 +499,11 @@ mod tests {
         pic.thick_line(256, 0, 256, 512, &(1.0, 0.0, 0.0, 1.0).into(), 1.0);
 
         // plot chars
-        let mut i = 0;
-        for c in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'x', 'm'].iter() {
-            pic.stroke_letter(100 + i * 14, 100, *c, 10.0, &"000000FF".into());
-            i += 1;
+        for (i, c) in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'x', 'm']
+            .iter()
+            .enumerate()
+        {
+            pic.stroke_letter(100 + i as u32 * 14, 100, *c, 10.0, &"000000FF".into());
         }
 
         pic.stroke_string(100, 200, "12x55mm", 10.0, &"E6E6E6FF".into());

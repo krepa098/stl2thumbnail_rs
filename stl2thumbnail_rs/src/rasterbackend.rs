@@ -274,14 +274,15 @@ fn edge_fn(a: &Vec2, b: &Vec2, c: &Vec2) -> f32 {
 
 fn scale_for_unitsize(mvp: &Mat4, aabb: &AABB) -> f32 {
     let edges = [
-        matmul(&mvp, &Vec3::new(aabb.lower.x, aabb.lower.y, aabb.lower.z)),
-        matmul(&mvp, &Vec3::new(aabb.upper.x, aabb.lower.y, aabb.lower.z)),
-        matmul(&mvp, &Vec3::new(aabb.lower.x, aabb.upper.y, aabb.lower.z)),
-        matmul(&mvp, &Vec3::new(aabb.upper.x, aabb.upper.y, aabb.lower.z)),
-        matmul(&mvp, &Vec3::new(aabb.lower.x, aabb.lower.y, aabb.upper.z)),
-        matmul(&mvp, &Vec3::new(aabb.upper.x, aabb.lower.y, aabb.upper.z)),
-        matmul(&mvp, &Vec3::new(aabb.lower.x, aabb.upper.y, aabb.upper.z)),
-        matmul(&mvp, &Vec3::new(aabb.upper.x, aabb.upper.y, aabb.upper.z)),
+        //(mvp * Vec3::new(aabb.lower.x, aabb.lower.y, aabb.lower.z).to_homogeneous()).xyz(),
+        matmul(mvp, &Vec3::new(aabb.lower.x, aabb.lower.y, aabb.lower.z)),
+        matmul(mvp, &Vec3::new(aabb.upper.x, aabb.lower.y, aabb.lower.z)),
+        matmul(mvp, &Vec3::new(aabb.lower.x, aabb.upper.y, aabb.lower.z)),
+        matmul(mvp, &Vec3::new(aabb.upper.x, aabb.upper.y, aabb.lower.z)),
+        matmul(mvp, &Vec3::new(aabb.lower.x, aabb.lower.y, aabb.upper.z)),
+        matmul(mvp, &Vec3::new(aabb.upper.x, aabb.lower.y, aabb.upper.z)),
+        matmul(mvp, &Vec3::new(aabb.lower.x, aabb.upper.y, aabb.upper.z)),
+        matmul(mvp, &Vec3::new(aabb.upper.x, aabb.upper.y, aabb.upper.z)),
     ];
 
     let mut min = Vec3::new(f32::MAX, f32::MAX, f32::MAX);
@@ -304,7 +305,7 @@ fn draw_grid(pic: &mut Picture, vp: &Mat4, z: f32, color: &Vec3, model_size: Vec
     let grid_color = (color.x, color.y, color.z, 1.0).into();
     let grid_size = 10.0; // mm
     let grid_count = ((max_xy * scale) / scale / grid_size + 1.0) as i32;
-    let grid_spacing = grid_size * scale as f32;
+    let grid_spacing = grid_size * scale;
 
     let ox = grid_count as f32 * grid_spacing / 2.0;
 
@@ -313,8 +314,8 @@ fn draw_grid(pic: &mut Picture, vp: &Mat4, z: f32, color: &Vec3, model_size: Vec
         let p1 = Vec3::new(p0.x, -grid_count as f32 * grid_spacing * 0.5, z);
 
         // to screen space
-        let sp0 = matmul(&vp, &p0).xy();
-        let sp1 = matmul(&vp, &p1).xy();
+        let sp0 = matmul(vp, &p0).xy();
+        let sp1 = matmul(vp, &p1).xy();
 
         pic.thick_line(
             ((sp0.x + 1.0) / 2.0 * pic.width() as f32) as i32,
