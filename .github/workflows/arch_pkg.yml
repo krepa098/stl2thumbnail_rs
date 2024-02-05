@@ -13,16 +13,7 @@ jobs:
         steps:
             - uses: actions/checkout@v2
 
-            - name: Validate package (GNOME)
-              uses: hapakaien/archlinux-package-action@v2
-              with: 
-                path: dist/archlinux/stl2thumbnail-git
-                aur: true
-                update_archlinux_keyring: true
+            - name: setup buildx
+              uses: docker/setup-buildx-action@v3
 
-            - name: Validate package (KDE)
-              uses: hapakaien/archlinux-package-action@v2
-              with: 
-                path: dist/archlinux/stl2thumbnail-kde-git
-                aur: true
-                update_archlinux_keyring: true
+            - run: docker build --platform=linux/amd64 -o . .
