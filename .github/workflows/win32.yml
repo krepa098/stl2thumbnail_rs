@@ -18,9 +18,11 @@ jobs:
       # checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - name: cargo version
+        run: cargo -V
+
       # build COM library
       - name: com library
-        run: cargo -V
         run: cargo build --release
         working-directory: ${{ github.workspace }}/desktop_integration/win32
       
