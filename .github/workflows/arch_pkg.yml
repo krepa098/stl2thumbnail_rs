@@ -17,8 +17,10 @@ jobs:
               uses: hapakaien/archlinux-package-action@v2
               with: 
                 path: dist/archlinux/stl2thumbnail-git
+                aur: true
 
             - name: Validate package (KDE)
               uses: hapakaien/archlinux-package-action@v2
               with: 
                 path: dist/archlinux/stl2thumbnail-kde-git
+                aur: true
