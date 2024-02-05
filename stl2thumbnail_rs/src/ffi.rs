@@ -79,11 +79,13 @@ pub extern "C" fn render(path: *const c_char, settings: RenderSettings) -> Pictu
 
 #[no_mangle]
 /// Frees the memory of a PictureBuffer
-pub extern "C" fn free_picture_buffer(buffer: PictureBuffer) {
+pub extern "C" fn free_picture_buffer(buffer: &mut PictureBuffer) {
     unsafe {
         let s = std::slice::from_raw_parts_mut(buffer.data as *mut u8, buffer.len as usize);
 
         // put the memory back into the box such that is can be freed
         drop(Box::from_raw(s as *mut [u8]));
+
+        buffer.data = std::ptr::null();
     }
 }

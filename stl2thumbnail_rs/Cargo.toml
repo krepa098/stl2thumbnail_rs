@@ -14,16 +14,16 @@ name = "stl2thumbnail"
 path = "src/main.rs"
 
 [dependencies]
-clap = "2.33"
-png = "0.16"
-gif = "0.11"
-glm = { package = "nalgebra-glm", version = "0.9" }
+clap = "2.34.0"
+png = "0.17"
+gif = "0.13.1"
+glm = { package = "nalgebra-glm", version = "0.18.0" }
 scan_fmt = "0.2"
 anyhow = "1.0"
 byteorder = "1.4"
 
 [build-dependencies]
-cbindgen = "0.16"
+cbindgen = "0.26.0"
 
 #[profile.release]
 #debug = true

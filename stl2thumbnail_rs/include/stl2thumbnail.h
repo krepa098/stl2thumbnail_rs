@@ -35,7 +35,7 @@ extern "C" {
 PictureBuffer render(const char *path, RenderSettings settings);
 
 /// Frees the memory of a PictureBuffer
-void free_picture_buffer(PictureBuffer buffer);
+void free_picture_buffer(PictureBuffer *buffer);
 
 } // extern "C"
 

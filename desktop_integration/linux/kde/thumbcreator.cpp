@@ -26,7 +26,7 @@ Q_LOGGING_CATEGORY(LOG_STL_THUMBS, "STLModelThumbs")
 extern "C"
 {
     // Factory method
-    Q_DECL_EXPORT ThumbCreator* new_creator()
+    Q_DECL_EXPORT ThumbCreator *new_creator()
     {
         return new StlThumbCreator();
     }
@@ -36,20 +36,22 @@ StlThumbCreator::StlThumbCreator()
 {
 }
 
-struct PicContainer {
+struct PicContainer
+{
     s2t::PictureBuffer buffer;
 };
 
-void cleanup(void* data) {
-    auto container = static_cast<PicContainer*>(data);
-    s2t::free_picture_buffer(container->buffer);
+void cleanup(void *data)
+{
+    auto container = static_cast<PicContainer *>(data);
+    s2t::free_picture_buffer(&container->buffer);
     delete container;
 }
 
-bool StlThumbCreator::create(const QString& path, int width, int height, QImage& img)
+bool StlThumbCreator::create(const QString &path, int width, int height, QImage &img)
 {
-    //qCDebug(LOG_STL_THUMBS) << "Creating thumbnail for " << path;
-    
+    // qCDebug(LOG_STL_THUMBS) << "Creating thumbnail for " << path;
+
     s2t::RenderSettings settings;
     settings.width = width;
     settings.height = height;
@@ -58,14 +60,14 @@ bool StlThumbCreator::create(const QString& path, int width, int height, QImage&
 
     // render
     const auto pic = s2t::render(path.toStdString().c_str(), settings);
-    
+
     // failed?
-    if(!pic.data)
+    if (!pic.data)
         return false;
-    
+
     // save the buffer in a container that stays around till it gets cleaned up
     // once 'img' goes out of scope
-    auto container = new PicContainer{ pic };
+    auto container = new PicContainer{pic};
 
     // QImage owns the buffer and it has to stay valid throughout the life of the QImage
     img = QImage(pic.data, width, height, pic.stride, QImage::Format_RGBA8888, cleanup, container);
