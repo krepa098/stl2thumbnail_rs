@@ -29,7 +29,7 @@ Section
     SetOutPath $InstDir
 
     ; Install library and register with regsvr32
-    !insertmacro InstallLib REGDLL NOTSHARED REBOOT_NOTPROTECTED "stl2thumbnail.dll" "$InstDir\stl2thumbnail.dll" "$SYSDIR"
+    !insertmacro InstallLib REGDLL NOTSHARED REBOOT_NOTPROTECTED "stl2thumbnail_win32.dll" "$InstDir\stl2thumbnail_win32.dll" "$SYSDIR"
 
     ; Write register keys
     ; Register as thumbnail provider for STL files
@@ -46,8 +46,8 @@ SectionEnd
 ; ---------------------------------------------------------------------------------------------------------------
 Section "Uninstall"
     ; Remove library
-    !insertmacro UnInstallLib REGDLL NOTSHARED REBOOT_NOTPROTECTED "$INSTDIR\stl2thumbnail.dll"
-
+    !insertmacro UnInstallLib REGDLL NOTSHARED REBOOT_NOTPROTECTED "$INSTDIR\stl2thumbnail_win32.dll"
+ 
     ; Remove registry keys
     DeleteRegKey HKEY_CLASSES_ROOT ".STL\ShellEx\{E357FCCD-A995-4576-B01F-234630154E96}"
 
@@ -61,6 +61,6 @@ SectionEnd
 ; ---------------------------------------------------------------------------------------------------------------
 Function .onInit
     SetRegView 64
-    StrCpy $InstDir "$PROGRAMFILES64\stl2thumbnail"
+    StrCpy $InstDir "$PROGRAMFILES64\stl2thumbnail_win32"
     StrCpy $guid "3F37FD04-2E82-4140-AD72-546484EDDABB"
 FunctionEnd

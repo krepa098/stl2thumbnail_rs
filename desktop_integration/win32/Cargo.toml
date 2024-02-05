@@ -5,12 +5,17 @@ authors = ["Paul"]
 edition = "2018"
 
 [lib]
-name = "stl2thumbnail"
+name = "stl2thumbnail_win32"
 crate-type = ["cdylib"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-stl2thumbnail = { version="1.0", path = "../../stl2thumbnail_rs" }
-com = {version="0.4", features=["production"]}
-winapi = {version="0.3", features=["objidlbase", "winnt", "wtypes", "wingdi"]}
+stl2thumbnail = { version = "1.0", path = "../../stl2thumbnail_rs" }
+com = { version = "0.4", features = ["production"] }
+winapi = { version = "0.3", features = [
+    "objidlbase",
+    "winnt",
+    "wtypes",
+    "wingdi",
+] }
