@@ -2,7 +2,7 @@
 name = "stl2thumbnail-win32"
 version = "0.1.0"
 authors = ["Paul"]
-edition = "2018"
+edition = "2021"
 
 [lib]
 name = "stl2thumbnail_win32"

@@ -2,7 +2,7 @@
 name = "stl2thumbnail"
 version = "1.0.1"
 authors = ["Paul <krepa098@gmail.com>"]
-edition = "2018"
+edition = "2021"
 build = "build.rs"
 
 [lib]
