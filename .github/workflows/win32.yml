@@ -11,13 +11,17 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      # Install latest stable rust toolchain
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
       # checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
       # build COM library
       - name: com library
+        run: cargo -V
         run: cargo build --release
-        uses: dtolnay/rust-toolchain@stable
         working-directory: ${{ github.workspace }}/desktop_integration/win32
       
       # copy server.dll
