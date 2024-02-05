@@ -15,7 +15,7 @@ use parser::Parser;
 use picture::Picture;
 use rasterbackend::RasterBackend;
 
-use clap::{App, Arg};
+use clap::{Arg, ArgAction, Command};
 use std::time::{Duration, Instant};
 
 struct Settings {
@@ -31,132 +31,131 @@ struct Settings {
 }
 
 fn main() -> Result<()> {
-    let matches = App::new("stl2thumbnail")
+    let matches = Command::new("stl2thumbnail")
         .version(clap::crate_version!())
-        .about("Generates thumbnails from STL files")
+        .arg_required_else_help(true)
+        .disable_help_flag(true)
+        .about("STL thumbnail generator")
         .arg(
-            Arg::with_name("INPUT")
-                .short("i")
+            Arg::new("INPUT")
+                .short('i')
                 .index(1)
                 .long("input")
                 .help("Input filename")
                 .required(true),
         )
         .arg(
-            Arg::with_name("OUTPUT")
-                .short("o")
+            Arg::new("OUTPUT")
+                .short('o')
                 .index(2)
                 .long("output")
                 .help("Output filename")
                 .required(true),
         )
         .arg(
-            Arg::with_name("TURNTABLE")
-                .short("t")
+            Arg::new("TURNTABLE")
+                .short('t')
                 .long("turntable")
+                .action(ArgAction::SetTrue)
                 .help("Enables turntable mode"),
         )
-        .arg(Arg::with_name("VERBOSE").short("v").long("verbose").help("Be verbose"))
         .arg(
-            Arg::with_name("LAZY")
-                .short("l")
+            Arg::new("VERBOSE")
+                .short('v')
+                .long("verbose")
+                .action(ArgAction::SetTrue)
+                .help("Be verbose"),
+        )
+        .arg(
+            Arg::new("LAZY")
+                .short('l')
                 .long("lazy")
+                .action(ArgAction::SetTrue)
                 .help("Enables low memory usage mode"),
         )
         .arg(
-            Arg::with_name("RECALC_NORMALS")
-                .short("n")
+            Arg::new("RECALC_NORMALS")
+                .short('n')
                 .long("normals")
+                .action(ArgAction::SetTrue)
                 .help("Always recalculate normals"),
         )
         .arg(
-            Arg::with_name("WIDTH")
-                .short("w")
+            Arg::new("WIDTH")
+                .short('w')
                 .long("width")
-                .takes_value(true)
-                .help("Width of the generated image (defaults to 256)"),
+                .action(ArgAction::Set)
+                .default_value("256")
+                .help("Width of the generated image"),
         )
         .arg(
-            Arg::with_name("HEIGHT")
-                .short("h")
+            Arg::new("HEIGHT")
+                .short('h')
                 .long("height")
-                .takes_value(true)
-                .help("Height of the generated image (defaults to 256)"),
+                .action(ArgAction::Set)
+                .default_value("256")
+                .help("Height of the generated image"),
         )
         .arg(
-            Arg::with_name("SIZE_HINT")
-                .short("d")
+            Arg::new("SIZE_HINT")
+                .short('d')
                 .long("dimensions")
+                .action(ArgAction::SetTrue)
                 .help("Draws the dimensions underneath the model (requires height of at least 256 pixels)"),
         )
         .arg(
-            Arg::with_name("CAM_ELEVATION")
+            Arg::new("CAM_ELEVATION")
                 .long("cam-elevation")
-                .takes_value(true)
+                .action(ArgAction::Set)
+                .default_value("25.0")
                 .help("The camera's elevation"),
         )
         .arg(
-            Arg::with_name("CAM_AZIMUTH")
+            Arg::new("CAM_AZIMUTH")
                 .long("cam-azimuth")
-                .takes_value(true)
+                .action(ArgAction::Set)
+                .default_value("45.0")
                 .help("The camera's azimuth"),
         )
         .arg(
-            Arg::with_name("GRID_VISIBLE")
-                .short("g")
+            Arg::new("GRID_VISIBLE")
+                .short('g')
                 .long("grid")
-                .takes_value(true)
+                .action(ArgAction::SetTrue)
                 .help("Show or hide the grid"),
         )
         .arg(
-            Arg::with_name("TIMEOUT")
+            Arg::new("TIMEOUT")
                 .long("timeout")
-                .takes_value(true)
+                .action(ArgAction::Set)
                 .help("Sets the time budget for the rendering process"),
+        )
+        .arg(
+            Arg::new("HELP")
+                .long("help")
+                .action(ArgAction::HelpLong)
+                .help("Prints this"),
         )
         .get_matches();
 
-    let input = matches.value_of("INPUT").unwrap();
-    let output = matches.value_of("OUTPUT").unwrap();
+    let input = matches.get_one::<String>("INPUT").unwrap();
+    let output = matches.get_one::<String>("OUTPUT").unwrap();
 
-    let width = matches
-        .value_of("WIDTH")
-        .unwrap_or_default()
-        .parse::<u32>()
-        .unwrap_or(256);
-    let height = matches
-        .value_of("HEIGHT")
-        .unwrap_or_default()
-        .parse::<u32>()
-        .unwrap_or(256);
+    let width = matches.get_one::<u32>("WIDTH").unwrap();
+    let height = matches.get_one::<u32>("HEIGHT").unwrap();
 
     let settings = Settings {
-        verbose: matches.is_present("VERBOSE"),
-        lazy: matches.is_present("LAZY"),
-        recalculate_normals: matches.is_present("RECALC_NORMALS"),
-        size_hint: matches.is_present("SIZE_HINT") && height >= 256,
-        turntable: matches.is_present("TURNTABLE"),
-        grid: matches
-            .value_of("GRID_VISIBLE")
-            .unwrap_or_default()
-            .parse::<bool>()
-            .unwrap_or(true),
-        cam_elevation: matches
-            .value_of("CAM_ELEVATION")
-            .unwrap_or_default()
-            .parse::<f32>()
-            .unwrap_or(25.0),
-        cam_azimuth: matches
-            .value_of("CAM_AZIMUTH")
-            .unwrap_or_default()
-            .parse::<f32>()
-            .unwrap_or(45.0),
+        verbose: matches.contains_id("VERBOSE"),
+        lazy: matches.contains_id("LAZY"),
+        recalculate_normals: matches.contains_id("RECALC_NORMALS"),
+        size_hint: matches.contains_id("SIZE_HINT") && *height >= 256,
+        turntable: matches.contains_id("TURNTABLE"),
+        grid: matches.contains_id("GRID_VISIBLE"),
+        cam_elevation: *matches.get_one::<f32>("CAM_ELEVATION").unwrap(),
+        cam_azimuth: *matches.get_one::<f32>("CAM_AZIMUTH").unwrap(),
         timeout: matches
-            .value_of("TIMEOUT")
-            .unwrap_or_default()
-            .parse::<u64>()
-            .ok()
-            .map_or(None, |v| Some(Duration::from_millis(v))),
+            .get_one::<u64>("TIMEOUT")
+            .map_or(None, |v| Some(Duration::from_millis(*v))),
     };
 
     if settings.verbose {
@@ -177,10 +176,10 @@ fn main() -> Result<()> {
 
     if settings.lazy {
         let parsed_mesh = LazyMesh::new(&mut parser);
-        create(width, height, &parsed_mesh, &output, &settings)?;
+        create(*width, *height, &parsed_mesh, &output, &settings)?;
     } else {
         let parsed_mesh = parser.read_all()?;
-        create(width, height, &parsed_mesh, &output, &settings)?;
+        create(*width, *height, &parsed_mesh, &output, &settings)?;
     }
 
     if settings.verbose {

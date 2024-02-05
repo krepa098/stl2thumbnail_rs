@@ -14,13 +14,13 @@ name = "stl2thumbnail"
 path = "src/main.rs"
 
 [dependencies]
-clap = "2.34.0"
+clap = { version = "4.4.18", features = ["cargo"] }
 png = "0.17.11"
 gif = "0.13.1"
 glm = { package = "nalgebra-glm", version = "0.18.0" }
 scan_fmt = "0.2.6"
-anyhow = "1.0"
-byteorder = "1.4"
+anyhow = "1.0.79"
+byteorder = "1.5.0"
 
 [build-dependencies]
 cbindgen = "0.26.0"
