@@ -1,0 +1,19 @@
+name: arch pkg
+
+on:
+    push:
+      branches: [ master ]
+    pull_request:
+      branches: [ master ]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Validate package
+              uses: hapakaien/archlinux-package-action@v2
+              with: 
+                path: dist/archlinux
