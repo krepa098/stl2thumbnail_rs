@@ -13,7 +13,12 @@ jobs:
         steps:
             - uses: actions/checkout@v2
 
-            - name: Validate package
+            - name: Validate package (GNOME)
               uses: hapakaien/archlinux-package-action@v2
               with: 
-                path: dist/archlinux
+                path: dist/archlinux/stl2thumbnail-git
+
+            - name: Validate package (KDE)
+              uses: hapakaien/archlinux-package-action@v2
+              with: 
+                path: dist/archlinux/stl2thumbnail-kde-git
