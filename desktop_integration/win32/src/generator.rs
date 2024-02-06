@@ -2,6 +2,7 @@ use crate::com_interface::{IInitializeWithStream, IThumbnailProvider};
 
 use com::sys::{HRESULT, S_OK};
 
+use winapi::ctypes::c_void;
 use winapi::shared::minwindef::{DWORD, PUINT, UINT};
 use winapi::shared::windef::HBITMAP;
 use winapi::shared::wtypes::STATFLAG_NONAME;
@@ -9,7 +10,6 @@ use winapi::um::objidlbase::{LPSTREAM, STATSTG};
 use winapi::um::wingdi::CreateBitmap;
 
 use std::cell::RefCell;
-use std::ffi::c_void;
 use std::io::Cursor;
 use std::time::Duration;
 
@@ -92,7 +92,7 @@ com::class! {
 
 fn create_hbitmap_from_picture(pic: &Picture) -> HBITMAP {
     let bgra_data = pic.to_bgra();
-    let data = bgra_data.as_ptr() as *mut winapi::ctypes::c_void;
+    let data = bgra_data.as_ptr() as *mut c_void;
     let width = pic.width() as i32;
     let height = pic.height() as i32;
 
