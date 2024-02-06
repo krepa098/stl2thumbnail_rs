@@ -1,5 +1,5 @@
 use anyhow::Result;
-use image::{DynamicImage, GenericImage};
+use image::DynamicImage;
 use std::convert::From;
 use std::i32;
 

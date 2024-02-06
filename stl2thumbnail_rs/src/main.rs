@@ -16,7 +16,7 @@ use parser::Parser;
 use picture::Picture;
 use rasterbackend::RasterBackend;
 
-use clap::{Arg, ArgAction, Command};
+use clap::{Arg, ArgAction, ArgMatches, Command};
 use std::time::{Duration, Instant};
 
 struct Settings {
@@ -32,11 +32,8 @@ struct Settings {
 }
 
 fn main() -> Result<()> {
-    let matches = Command::new("stl2thumbnail")
-        .version(clap::crate_version!())
-        .arg_required_else_help(true)
-        .disable_help_flag(true)
-        .about("STL thumbnail generator")
+    let stl_command = Command::new("stl")
+        .about("Renders an image of an stl file")
         .arg(
             Arg::new("INPUT")
                 .short('i')
@@ -136,9 +133,54 @@ fn main() -> Result<()> {
                 .long("help")
                 .action(ArgAction::HelpLong)
                 .help("Prints this"),
+        );
+
+    let gcode_command = Command::new("gcode")
+        .about("Extracts a thumbnail embedded in a gcode file")
+        .arg(
+            Arg::new("INPUT")
+                .short('i')
+                .index(1)
+                .long("input")
+                .help("Input filename")
+                .required(true),
         )
+        .arg(
+            Arg::new("OUTPUT")
+                .short('o')
+                .index(2)
+                .long("output")
+                .help("Output filename")
+                .required(true),
+        )
+        .arg(
+            Arg::new("HELP")
+                .long("help")
+                .action(ArgAction::HelpLong)
+                .help("Prints this"),
+        );
+
+    let matches = Command::new("stl2thumbnail")
+        .version(clap::crate_version!())
+        .arg_required_else_help(true)
+        .disable_help_flag(true)
+        .about("STL thumbnail generator")
+        .subcommand(stl_command)
+        .subcommand(gcode_command)
         .get_matches();
 
+    if let Some((subcommand, matches)) = matches.subcommand() {
+        match subcommand {
+            "stl" => command_stl(matches)?,
+            "gcode" => command_gcode(matches)?,
+            _ => unimplemented!(),
+        }
+    }
+
+    Ok(())
+}
+
+fn command_stl(matches: &ArgMatches) -> Result<()> {
     let input = matches.get_one::<String>("INPUT").unwrap();
     let output = matches.get_one::<String>("OUTPUT").unwrap();
 
@@ -189,6 +231,19 @@ fn main() -> Result<()> {
             output,
             Instant::now().duration_since(start_time).as_secs_f32()
         );
+    }
+
+    Ok(())
+}
+
+fn command_gcode(matches: &ArgMatches) -> Result<()> {
+    let input = matches.get_one::<String>("INPUT").unwrap();
+    let output = matches.get_one::<String>("OUTPUT").unwrap();
+
+    let previews = gcode::extract_previews_from_file(&input)?;
+
+    if let Some(preview) = previews.last() {
+        preview.save(output)?;
     }
 
     Ok(())
