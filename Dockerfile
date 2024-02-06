@@ -1,4 +1,4 @@
-FROM archlinux:latest as build-stage
+FROM archlinux:latest AS build-stage
 
 # install required packages
 RUN pacman -Syyu --noconfirm --needed archlinux-keyring sudo base-devel cmake extra-cmake-modules
