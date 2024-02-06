@@ -91,17 +91,22 @@ pub extern "C" fn extract_gcode_preview(path: *const c_char) -> PictureBuffer {
         if let Ok(path) = path {
             if let Ok(previews) = gcode::extract_previews_from_file(path) {
                 if let Some(img) = previews.last() {
-                    let boxed_data = img.as_bytes().to_vec().into_boxed_slice();
-                    let data_ptr = boxed_data.as_ptr();
+                    let img_rgba8 = img.to_rgba8();
+
+                    let boxed_data = img_rgba8.to_vec().into_boxed_slice();
+                    let data = boxed_data.as_ptr();
+                    let len = img_rgba8.len() as u32;
+                    let stride = img_rgba8.width() * 4;
+                    let depth = 4;
 
                     // leak the memory owned by boxed_data
                     forget(boxed_data);
 
                     return PictureBuffer {
-                        data: data_ptr,
-                        len: img.as_bytes().len() as u32,
-                        stride: img.width() * img.color().bytes_per_pixel() as u32,
-                        depth: img.color().bytes_per_pixel() as u32,
+                        data,
+                        len,
+                        stride,
+                        depth,
                     };
                 }
             }
