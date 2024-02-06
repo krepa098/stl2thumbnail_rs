@@ -1,4 +1,4 @@
-name: tests
+name: cargo test
 
 on:
   push:
@@ -12,8 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
            
-    - name: Run tests
-      run: cargo test --verbose
+    - run: cargo test --verbose
       working-directory: ${{ github.workspace }}/stl2thumbnail_rs

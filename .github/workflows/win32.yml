@@ -1,4 +1,4 @@
-name: win32 deploy
+name: win32 installer
 
 on:
   push:
@@ -11,12 +11,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # Install latest stable rust toolchain
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      # checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # build COM library
       - name: com library
@@ -24,18 +19,16 @@ jobs:
         working-directory: ${{ github.workspace }}/desktop_integration/win32
       
       # copy COM library
-      - name: dll copy
-        run: cp ${{ github.workspace }}/desktop_integration/win32/target/release/stl2thumbnail_win32.dll ${{ github.workspace }}/dist/NSIS
+      - run: cp ${{ github.workspace }}/desktop_integration/win32/target/release/stl2thumbnail_win32.dll ${{ github.workspace }}/dist/NSIS
 
       # create nullsoft installer
-      - name: Create nsis installer
+      - name: Create NSIS installer
         uses: joncloud/makensis-action@v3.3
         with:
           script-file: ${{ github.workspace }}/dist/NSIS/install.nsi
 
       # artifact
-      - name: Upload artifact
-        uses: actions/upload-artifact@v1.0.0
+      - uses: actions/upload-artifact@v4
         with:
           name: Installer.exe
           path: ${{ github.workspace }}/dist/NSIS/Installer.exe
