@@ -23,7 +23,7 @@ jobs:
 
       # create nullsoft installer
       - name: Create NSIS installer
-        uses: joncloud/makensis-action@v3.3
+        uses: joncloud/makensis-action@v4.1
         with:
           script-file: ${{ github.workspace }}/dist/NSIS/install.nsi
 
