@@ -270,16 +270,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gif"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fb2d69b19215e18bb912fa30f7ce15846e301408695e44e0ef719f1da9e19f2"
-dependencies = [
- "color_quant",
- "weezl",
-]
-
-[[package]]
 name = "hashbrown"
 version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -309,7 +299,7 @@ dependencies = [
  "bytemuck",
  "byteorder",
  "color_quant",
- "gif 0.12.0",
+ "gif",
  "jpeg-decoder",
  "num-traits",
  "png",
@@ -621,10 +611,8 @@ dependencies = [
  "byteorder",
  "cbindgen",
  "clap 4.4.18",
- "gif 0.13.1",
  "image",
  "nalgebra-glm",
- "png",
  "scan_fmt",
 ]
 

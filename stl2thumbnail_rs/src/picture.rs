@@ -1,3 +1,5 @@
+use anyhow::Result;
+use image::{DynamicImage, GenericImage};
 use std::convert::From;
 use std::i32;
 
@@ -306,18 +308,22 @@ impl Picture {
         }
     }
 
-    pub fn save(&self, path: &str) -> std::io::Result<()> {
-        let file = std::fs::File::create(path)?;
-        let buf = std::io::BufWriter::new(file);
-        let mut encoder = png::Encoder::new(buf, self.width, self.height);
-
-        encoder.set_color(png::ColorType::Rgba);
-        encoder.set_depth(png::BitDepth::Eight);
-
-        let mut writer = encoder.write_header()?;
-        writer.write_image_data(&self.data)?;
+    pub fn save(&self, path: &str) -> Result<()> {
+        image::save_buffer_with_format(
+            path,
+            &self.data,
+            self.width,
+            self.height,
+            image::ColorType::Rgba8,
+            image::ImageFormat::Png,
+        )?;
 
         Ok(())
+    }
+
+    pub fn create_image(&self) -> DynamicImage {
+        let image = image::RgbaImage::from_raw(self.width, self.height, self.data.clone());
+        image.unwrap().into()
     }
 
     pub fn stroke_string(&mut self, x: u32, y: u32, s: &str, char_size: f32, rgba: &Color) {
