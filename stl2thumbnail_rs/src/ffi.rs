@@ -1,6 +1,6 @@
 use std::{ffi::CStr, mem::forget, os::raw::c_char};
 
-use crate::{parser::Parser, rasterbackend::RasterBackend};
+use crate::{gcode, parser::Parser, rasterbackend::RasterBackend};
 
 #[repr(C)]
 pub struct PictureBuffer {
@@ -28,8 +28,9 @@ pub struct RenderSettings {
 
 #[no_mangle]
 /// Renders a mesh to a picture
+///
 /// Free the buffer with free_picture_buffer
-pub extern "C" fn render(path: *const c_char, settings: RenderSettings) -> PictureBuffer {
+pub extern "C" fn render_stl(path: *const c_char, settings: RenderSettings) -> PictureBuffer {
     if !path.is_null() {
         let path = unsafe { CStr::from_ptr(path) }.to_str();
 
@@ -63,6 +64,44 @@ pub extern "C" fn render(path: *const c_char, settings: RenderSettings) -> Pictu
                         len,
                         stride,
                         depth,
+                    };
+                }
+            }
+        }
+    }
+
+    PictureBuffer {
+        data: std::ptr::null(),
+        len: 0,
+        stride: 0,
+        depth: 0,
+    }
+}
+
+#[no_mangle]
+/// Extracts the thumbnail embedded into the gcode
+/// If there are multiple thumbnails, the one with
+/// the highest resolution is returned
+///
+/// Free the buffer with free_picture_buffer
+pub extern "C" fn extract_gcode_preview(path: *const c_char) -> PictureBuffer {
+    if !path.is_null() {
+        let path = unsafe { CStr::from_ptr(path) }.to_str();
+
+        if let Ok(path) = path {
+            if let Ok(previews) = gcode::extract_previews_from_file(path) {
+                if let Some(img) = previews.last() {
+                    let boxed_data = img.as_bytes().to_vec().into_boxed_slice();
+                    let data_ptr = boxed_data.as_ptr();
+
+                    // leak the memory owned by boxed_data
+                    forget(boxed_data);
+
+                    return PictureBuffer {
+                        data: data_ptr,
+                        len: img.as_bytes().len() as u32,
+                        stride: img.width() * img.color().bytes_per_pixel() as u32,
+                        depth: img.color().bytes_per_pixel() as u32,
                     };
                 }
             }

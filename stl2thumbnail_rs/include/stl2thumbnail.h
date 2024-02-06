@@ -31,8 +31,16 @@ struct RenderSettings {
 extern "C" {
 
 /// Renders a mesh to a picture
+///
 /// Free the buffer with free_picture_buffer
-PictureBuffer render(const char *path, RenderSettings settings);
+PictureBuffer render_stl(const char *path, RenderSettings settings);
+
+/// Extracts the thumbnail embedded into the gcode
+/// If there are multiple thumbnails, the one with
+/// the highest resolution is returned
+///
+/// Free the buffer with free_picture_buffer
+PictureBuffer extract_gcode_preview(const char *path);
 
 /// Frees the memory of a PictureBuffer
 void free_picture_buffer(PictureBuffer *buffer);

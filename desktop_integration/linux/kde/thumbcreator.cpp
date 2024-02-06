@@ -59,7 +59,7 @@ bool StlThumbCreator::create(const QString &path, int width, int height, QImage 
     settings.size_hint = height >= 256;
 
     // render
-    const auto pic = s2t::render(path.toStdString().c_str(), settings);
+    const auto pic = s2t::render_stl(path.toStdString().c_str(), settings);
 
     // failed?
     if (!pic.data)
