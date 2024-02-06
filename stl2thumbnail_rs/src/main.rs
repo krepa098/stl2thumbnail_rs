@@ -186,7 +186,7 @@ fn main() -> Result<()> {
         println!(
             "Saved as '{}' (took {}s)",
             output,
-            (Instant::now() - start_time).as_secs_f32()
+            Instant::now().duration_since(start_time).as_secs_f32()
         );
     }
 
