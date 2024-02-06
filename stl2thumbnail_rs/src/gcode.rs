@@ -41,13 +41,7 @@ pub fn extract_previews(content: &str) -> Result<Vec<DynamicImage>> {
         }
 
         if trimmed_line.starts_with("; thumbnail begin") {
-            let args = trimmed_line.split_ascii_whitespace();
-
             in_thumbnail_section = true;
-
-            for a in args {
-                dbg!(a);
-            }
         }
     }
 
@@ -58,8 +52,6 @@ pub fn extract_previews(content: &str) -> Result<Vec<DynamicImage>> {
 
         // try to decode the image (possible formats are 'png', 'jpeg', 'qoi')
         if let Ok(image) = image::load_from_memory(&image_bytes) {
-            dbg!(image.width(), image.height());
-
             images.push(image);
         }
     }
