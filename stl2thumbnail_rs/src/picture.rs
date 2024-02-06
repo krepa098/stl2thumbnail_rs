@@ -83,10 +83,10 @@ impl From<(u8, u8, u8, u8)> for Color {
 impl From<(f32, f32, f32, f32)> for Color {
     fn from(rgba: (f32, f32, f32, f32)) -> Self {
         Self {
-            r: (rgba.0.min(1.0).max(0.0) * 255.0) as u8,
-            g: (rgba.1.min(1.0).max(0.0) * 255.0) as u8,
-            b: (rgba.2.min(1.0).max(0.0) * 255.0) as u8,
-            a: (rgba.3.min(1.0).max(0.0) * 255.0) as u8,
+            r: (rgba.0.clamp(0.0, 1.0) * 255.0) as u8,
+            g: (rgba.1.clamp(0.0, 1.0) * 255.0) as u8,
+            b: (rgba.2.clamp(0.0, 1.0) * 255.0) as u8,
+            a: (rgba.3.clamp(0.0, 1.0) * 255.0) as u8,
         }
     }
 }
