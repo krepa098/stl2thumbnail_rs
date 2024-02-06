@@ -1,6 +1,7 @@
 mod aabb;
 mod encoder;
 mod ffi;
+mod gcode;
 mod mesh;
 mod parser;
 mod picture;
