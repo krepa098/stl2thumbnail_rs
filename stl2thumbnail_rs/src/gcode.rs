@@ -23,7 +23,7 @@ pub fn extract_previews(content: &str) -> Result<Vec<DynamicImage>> {
 
     let mut in_thumbnail_section = false;
 
-    for line in content.lines() {
+    for (i, line) in content.lines().enumerate() {
         let trimmed_line = line.trim();
 
         if in_thumbnail_section && (trimmed_line.starts_with("; thumbnail end") || !trimmed_line.starts_with(';')) {
@@ -42,6 +42,12 @@ pub fn extract_previews(content: &str) -> Result<Vec<DynamicImage>> {
 
         if trimmed_line.starts_with("; thumbnail begin") {
             in_thumbnail_section = true;
+        }
+
+        // gcode files can be huge we thus avoid scanning the whole file
+        // the thumbnail should be at the start of the file
+        if i > 2000 {
+            break;
         }
     }
 
