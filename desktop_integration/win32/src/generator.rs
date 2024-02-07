@@ -67,30 +67,30 @@ com::class! {
 
     impl IInitializeWithStream for WinSTLThumbnailGenerator {
         unsafe fn initialize(&self, pstream: LPSTREAM, _grf_mode: DWORD) -> HRESULT {
-              // figure out the length of the stream
-              let mut stat: STATSTG = std::mem::zeroed();
+            // figure out the length of the stream
+            let mut stat: STATSTG = std::mem::zeroed();
 
-                if (*pstream).Stat(&mut stat, STATFLAG_NONAME) != S_OK {
-                    return -2;
-                }
+            if (*pstream).Stat(&mut stat, STATFLAG_NONAME) != S_OK {
+                return -2;
+            }
 
-                let len = *stat.cbSize.QuadPart() as usize;
+            let len = *stat.cbSize.QuadPart() as usize;
 
-                println!("Got stream of length {}", len);
+            println!("Got stream of length {}", len);
 
-                // read the entire stream
-                self.data.replace(vec![0; len as usize]);
-                let res = (*pstream).Read(
-                    self.data.borrow_mut().as_mut_ptr() as *mut c_void,
-                    len as u32,
-                    std::ptr::null_mut(),
-                );
+            // read the entire stream
+            self.data.replace(vec![0; len as usize]);
+            let res = (*pstream).Read(
+                self.data.borrow_mut().as_mut_ptr() as *mut c_void,
+                len as u32,
+                std::ptr::null_mut(),
+            );
 
-                if res != S_OK {
-                    return -1; // error
-                }
+            if res != S_OK {
+                return -1; // error
+            }
 
-                return S_OK;
+            return S_OK;
         }
     }
 } // class
@@ -129,30 +129,30 @@ com::class! {
 
     impl IInitializeWithStream for WinGCodehumbnailGenerator {
         unsafe fn initialize(&self, pstream: LPSTREAM, _grf_mode: DWORD) -> HRESULT {
-              // figure out the length of the stream
-              let mut stat: STATSTG = std::mem::zeroed();
+            // figure out the length of the stream
+            let mut stat: STATSTG = std::mem::zeroed();
 
-                if (*pstream).Stat(&mut stat, STATFLAG_NONAME) != S_OK {
-                    return -2;
-                }
+            if (*pstream).Stat(&mut stat, STATFLAG_NONAME) != S_OK {
+                return -2;
+            }
 
-                let len = *stat.cbSize.QuadPart() as usize;
+            let len = *stat.cbSize.QuadPart() as usize;
 
-                println!("Got stream of length {}", len);
+            println!("Got stream of length {}", len);
 
-                // read the entire stream
-                self.data.replace(vec![0; len as usize]);
-                let res = (*pstream).Read(
-                    self.data.borrow_mut().as_mut_ptr() as *mut c_void,
-                    len as u32,
-                    std::ptr::null_mut(),
-                );
+            // read the entire stream
+            self.data.replace(vec![0; len as usize]);
+            let res = (*pstream).Read(
+                self.data.borrow_mut().as_mut_ptr() as *mut c_void,
+                len as u32,
+                std::ptr::null_mut(),
+            );
 
-                if res != S_OK {
-                    return -1; // error
-                }
+            if res != S_OK {
+                return -1; // error
+            }
 
-                return S_OK;
+            return S_OK;
         }
     }
 } // class
