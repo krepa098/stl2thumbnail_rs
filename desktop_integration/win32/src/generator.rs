@@ -125,7 +125,7 @@ com::class! {
         }
     }
 
-    impl IInitializeWithStream for WinSTLThumbnailGenerator {
+    impl IInitializeWithStream for WinGCodehumbnailGenerator {
         unsafe fn initialize(&self, pstream: LPSTREAM, _grf_mode: DWORD) -> HRESULT {
               // figure out the length of the stream
               let mut stat: STATSTG = std::mem::zeroed();
