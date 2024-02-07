@@ -8,3 +8,5 @@ pub mod picture;
 pub mod rasterbackend;
 pub mod threemf;
 pub mod zbuffer;
+
+pub use image;
