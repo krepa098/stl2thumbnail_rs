@@ -26,22 +26,8 @@ struct Settings {
 fn main() -> Result<()> {
     let stl_command = Command::new("stl")
         .about("Renders an image of an stl file")
-        .arg(
-            Arg::new("INPUT")
-                .short('i')
-                .index(1)
-                .long("input")
-                .help("Input filename")
-                .required(true),
-        )
-        .arg(
-            Arg::new("OUTPUT")
-                .short('o')
-                .index(2)
-                .long("output")
-                .help("Output filename")
-                .required(true),
-        )
+        .arg(Arg::new("INPUT").index(1).help("Input filename").required(true))
+        .arg(Arg::new("OUTPUT").index(2).help("Output filename").required(true))
         .arg(
             Arg::new("TURNTABLE")
                 .short('t')
@@ -129,22 +115,8 @@ fn main() -> Result<()> {
 
     let gcode_command = Command::new("gcode")
         .about("Extracts a thumbnail embedded in a gcode file")
-        .arg(
-            Arg::new("INPUT")
-                .short('i')
-                .index(1)
-                .long("input")
-                .help("Input filename")
-                .required(true),
-        )
-        .arg(
-            Arg::new("OUTPUT")
-                .short('o')
-                .index(2)
-                .long("output")
-                .help("Output filename")
-                .required(true),
-        )
+        .arg(Arg::new("INPUT").index(1).help("Input filename").required(true))
+        .arg(Arg::new("OUTPUT").index(2).help("Output filename").required(true))
         .arg(
             Arg::new("HELP")
                 .long("help")
@@ -154,22 +126,8 @@ fn main() -> Result<()> {
 
     let threemf_command = Command::new("3mf")
         .about("Extracts a thumbnail embedded in a gcode file")
-        .arg(
-            Arg::new("INPUT")
-                .short('i')
-                .index(1)
-                .long("input")
-                .help("Input filename")
-                .required(true),
-        )
-        .arg(
-            Arg::new("OUTPUT")
-                .short('o')
-                .index(2)
-                .long("output")
-                .help("Output filename")
-                .required(true),
-        )
+        .arg(Arg::new("INPUT").index(1).help("Input filename").required(true))
+        .arg(Arg::new("OUTPUT").index(2).help("Output filename").required(true))
         .arg(
             Arg::new("HELP")
                 .long("help")
