@@ -1,12 +1,4 @@
-mod aabb;
-mod encoder;
-mod ffi;
-mod gcode;
-mod mesh;
-mod parser;
-mod picture;
-mod rasterbackend;
-mod zbuffer;
+use stl2thumbnail::*;
 
 use anyhow::Result;
 use encoder::*;
