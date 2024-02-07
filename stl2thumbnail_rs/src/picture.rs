@@ -141,6 +141,15 @@ impl Picture {
         pic
     }
 
+    pub fn new_with_rgba8_data(width: u32, height: u32, data: &[u8]) -> Self {
+        Picture {
+            data: data.to_vec(),
+            width,
+            height,
+            depth: 4,
+        }
+    }
+
     pub fn stride(&self) -> u32 {
         self.width * self.depth
     }
