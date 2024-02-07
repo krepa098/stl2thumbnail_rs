@@ -18,6 +18,8 @@ use stl2thumbnail::parser::Parser;
 use stl2thumbnail::picture::Picture;
 use stl2thumbnail::rasterbackend::RasterBackend;
 
+use stl2thumbnail::image;
+
 com::class! {
     pub class WinSTLThumbnailGenerator: IThumbnailProvider, IInitializeWithStream {
         data: RefCell<Vec<u8>>, // will be initialized to Default::default()
@@ -101,7 +103,7 @@ com::class! {
     impl IThumbnailProvider for WinGCodehumbnailGenerator {
         unsafe fn get_thumbnail(
             &self,
-            _cx: UINT,            // size in x & y dimension
+            cx: UINT,            // size in x & y dimension
             phbmp: *mut HBITMAP, // data ptr
             pdw_alpha: PUINT,
         ) -> com::sys::HRESULT {
@@ -109,7 +111,7 @@ com::class! {
 
             if let Ok(previews) = gcode::extract_previews_from_data(data.as_slice()) {
                 if let Some(preview) = previews.last() {
-                    let rgb8_preview = preview.to_rgba8();
+                    let rgb8_preview = preview.resize(cx as u32, cx as u32, image::imageops::FilterType::Triangle).to_rgba8();
 
                     let pciture = Picture::new_with_rgba8_data(rgb8_preview.width(), rgb8_preview.height(), &rgb8_preview);
 
