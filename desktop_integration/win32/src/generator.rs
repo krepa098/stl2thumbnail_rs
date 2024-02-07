@@ -13,6 +13,7 @@ use std::cell::RefCell;
 use std::io::Cursor;
 use std::time::Duration;
 
+use stl2thumbnail::gcode;
 use stl2thumbnail::parser::Parser;
 use stl2thumbnail::picture::Picture;
 use stl2thumbnail::rasterbackend::RasterBackend;
@@ -60,6 +61,70 @@ com::class! {
             // return NOERROR
         }
     }
+
+
+    impl IInitializeWithStream for WinSTLThumbnailGenerator {
+        unsafe fn initialize(&self, pstream: LPSTREAM, _grf_mode: DWORD) -> HRESULT {
+              // figure out the length of the stream
+              let mut stat: STATSTG = std::mem::zeroed();
+
+                if (*pstream).Stat(&mut stat, STATFLAG_NONAME) != S_OK {
+                    return -2;
+                }
+
+                let len = *stat.cbSize.QuadPart() as usize;
+
+                println!("Got stream of length {}", len);
+
+                // read the entire stream
+                self.data.replace(vec![0; len as usize]);
+                let res = (*pstream).Read(
+                    self.data.borrow_mut().as_mut_ptr() as *mut c_void,
+                    len as u32,
+                    std::ptr::null_mut(),
+                );
+
+                if res != S_OK {
+                    return -1; // error
+                }
+
+                return S_OK;
+        }
+    }
+} // class
+
+com::class! {
+    pub class WinGCodehumbnailGenerator: IThumbnailProvider, IInitializeWithStream {
+        data: RefCell<Vec<u8>>, // will be initialized to Default::default()
+    }
+
+    impl IThumbnailProvider for WinGCodehumbnailGenerator {
+        unsafe fn get_thumbnail(
+            &self,
+            _cx: UINT,            // size in x & y dimension
+            phbmp: *mut HBITMAP, // data ptr
+            pdw_alpha: PUINT,
+        ) -> com::sys::HRESULT {
+            let data = self.data.borrow();
+
+            if let Ok(previews) = gcode::extract_previews_from_data(data.as_slice()) {
+                if let Some(preview) = previews.last() {
+                    let rgb8_preview = preview.to_rgba8();
+
+                    let pciture = Picture::new_with_rgba8_data(rgb8_preview.width(), rgb8_preview.height(), &rgb8_preview);
+
+                    *phbmp = create_hbitmap_from_picture(&pciture);
+                    *pdw_alpha = 0x2; // WTSAT_ARGB
+
+                    return S_OK;
+
+                }
+            }
+
+            -1 // error
+        }
+    }
+
     impl IInitializeWithStream for WinSTLThumbnailGenerator {
         unsafe fn initialize(&self, pstream: LPSTREAM, _grf_mode: DWORD) -> HRESULT {
               // figure out the length of the stream

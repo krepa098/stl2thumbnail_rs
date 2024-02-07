@@ -4,7 +4,7 @@ mod com_interface;
 mod generator;
 
 use com::sys::IID;
-use generator::WinSTLThumbnailGenerator;
+use generator::*;
 
 /*
 
@@ -35,11 +35,22 @@ Refs:
 */
 
 // GUID: 3F37FD04-2E82-4140-AD72-546484EDDABB
-pub const CLSID_GENERATOR_CLASS: IID = IID {
+pub const CLSID_GENERATOR_CLASS_STL: IID = IID {
     data1: 0x3F37FD04,
     data2: 0x2E82,
     data3: 0x4140,
     data4: [0xAD, 0x72, 0x54, 0x64, 0x84, 0xED, 0xDA, 0xBB],
 };
 
-com::inproc_dll_module![(CLSID_GENERATOR_CLASS, WinSTLThumbnailGenerator),];
+// GUID: 3F37FD04-2E82-4140-AD72-546484EDDABC
+pub const CLSID_GENERATOR_CLASS_GCODE: IID = IID {
+    data1: 0x3F37FD04,
+    data2: 0x2E82,
+    data3: 0x4140,
+    data4: [0xAD, 0x72, 0x54, 0x64, 0x84, 0xED, 0xDA, 0xBC],
+};
+
+com::inproc_dll_module![
+    (CLSID_GENERATOR_CLASS_STL, WinSTLThumbnailGenerator),
+    (CLSID_GENERATOR_CLASS_GCODE, WinGCodehumbnailGenerator)
+];

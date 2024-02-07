@@ -15,7 +15,8 @@ RequestExecutionLevel admin
 Unicode True
 
 ; Vars
-Var guid
+Var guid_stl
+Var guid_gcode
 
 ; Pages
 !define MUI_DIRECTORYPAGE_VARIABLE $InstDir
@@ -33,7 +34,10 @@ Section
 
     ; Write register keys
     ; Register as thumbnail provider for STL files
-    WriteRegStr HKEY_CLASSES_ROOT ".STL\ShellEx\{E357FCCD-A995-4576-B01F-234630154E96}" "" "{$guid}"
+    WriteRegStr HKEY_CLASSES_ROOT ".STL\ShellEx\{E357FCCD-A995-4576-B01F-234630154E96}" "" "{$guid_stl}"
+
+    ; Register as thumbnail provider for GCODE files
+    WriteRegStr HKEY_CLASSES_ROOT ".GCODE\ShellEx\{E357FCCD-A995-4576-B01F-234630154E96}" "" "{$guid_gcode}"
 
     ; Write the uninstaller
     WriteUninstaller "$InstDir\uninstall.exe"
@@ -50,6 +54,7 @@ Section "Uninstall"
  
     ; Remove registry keys
     DeleteRegKey HKEY_CLASSES_ROOT ".STL\ShellEx\{E357FCCD-A995-4576-B01F-234630154E96}"
+    DeleteRegKey HKEY_CLASSES_ROOT ".GCODE\ShellEx\{E357FCCD-A995-4576-B01F-234630154E96}"
 
     ; Remove remaining files
     Delete $INSTDIR\uninstall.exe
@@ -62,5 +67,6 @@ SectionEnd
 Function .onInit
     SetRegView 64
     StrCpy $InstDir "$PROGRAMFILES64\stl2thumbnail_win32"
-    StrCpy $guid "3F37FD04-2E82-4140-AD72-546484EDDABB"
+    StrCpy $guid_stl "3F37FD04-2E82-4140-AD72-546484EDDABB"
+    StrCpy $guid_gcode "3F37FD04-2E82-4140-AD72-546484EDDABC"
 FunctionEnd
