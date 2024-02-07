@@ -8,6 +8,12 @@ pub fn extract_previews_from_file(filename: &str) -> Result<Vec<DynamicImage>> {
     extract_previews(&content)
 }
 
+pub fn extract_previews_from_data(data: &[u8]) -> Result<Vec<DynamicImage>> {
+    let content = std::io::read_to_string(std::io::Cursor::new(data))?;
+
+    extract_previews(&content)
+}
+
 pub fn extract_previews(content: &str) -> Result<Vec<DynamicImage>> {
     // gcode format
     // ...
