@@ -1,0 +1,4 @@
+[Thumbnailer Entry]
+TryExec=/usr/bin/stl2thumbnail
+Exec=/usr/bin/stl2thumbnail gcode -w %s -h %s %i %o
+MimeType=text/x.gcode;
