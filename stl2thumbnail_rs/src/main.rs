@@ -62,6 +62,7 @@ fn main() -> Result<()> {
                 .long("width")
                 .action(ArgAction::Set)
                 .default_value("256")
+                .value_parser(clap::value_parser!(u32))
                 .help("Width of the generated image"),
         )
         .arg(
@@ -70,6 +71,7 @@ fn main() -> Result<()> {
                 .long("height")
                 .action(ArgAction::Set)
                 .default_value("256")
+                .value_parser(clap::value_parser!(u32))
                 .help("Height of the generated image"),
         )
         .arg(
@@ -84,6 +86,7 @@ fn main() -> Result<()> {
                 .long("cam-elevation")
                 .action(ArgAction::Set)
                 .default_value("25.0")
+                .value_parser(clap::value_parser!(f32))
                 .help("The camera's elevation"),
         )
         .arg(
@@ -91,6 +94,7 @@ fn main() -> Result<()> {
                 .long("cam-azimuth")
                 .action(ArgAction::Set)
                 .default_value("45.0")
+                .value_parser(clap::value_parser!(f32))
                 .help("The camera's azimuth"),
         )
         .arg(
@@ -118,6 +122,24 @@ fn main() -> Result<()> {
         .arg(Arg::new("INPUT").index(1).help("Input filename").required(true))
         .arg(Arg::new("OUTPUT").index(2).help("Output filename").required(true))
         .arg(
+            Arg::new("WIDTH")
+                .short('w')
+                .long("width")
+                .action(ArgAction::Set)
+                .default_value("256")
+                .value_parser(clap::value_parser!(u32))
+                .help("Width of the generated image"),
+        )
+        .arg(
+            Arg::new("HEIGHT")
+                .short('h')
+                .long("height")
+                .action(ArgAction::Set)
+                .default_value("256")
+                .value_parser(clap::value_parser!(u32))
+                .help("Height of the generated image"),
+        )
+        .arg(
             Arg::new("HELP")
                 .long("help")
                 .action(ArgAction::HelpLong)
@@ -128,6 +150,24 @@ fn main() -> Result<()> {
         .about("Extracts a thumbnail embedded in a gcode file")
         .arg(Arg::new("INPUT").index(1).help("Input filename").required(true))
         .arg(Arg::new("OUTPUT").index(2).help("Output filename").required(true))
+        .arg(
+            Arg::new("WIDTH")
+                .short('w')
+                .long("width")
+                .action(ArgAction::Set)
+                .default_value("256")
+                .value_parser(clap::value_parser!(u32))
+                .help("Width of the generated image"),
+        )
+        .arg(
+            Arg::new("HEIGHT")
+                .short('h')
+                .long("height")
+                .action(ArgAction::Set)
+                .default_value("256")
+                .value_parser(clap::value_parser!(u32))
+                .help("Height of the generated image"),
+        )
         .arg(
             Arg::new("HELP")
                 .long("help")
@@ -216,11 +256,15 @@ fn command_stl(matches: &ArgMatches) -> Result<()> {
 fn command_gcode(matches: &ArgMatches) -> Result<()> {
     let input = matches.get_one::<String>("INPUT").unwrap();
     let output = matches.get_one::<String>("OUTPUT").unwrap();
+    let width = matches.get_one::<u32>("WIDTH").unwrap();
+    let height = matches.get_one::<u32>("HEIGHT").unwrap();
 
     let previews = gcode::extract_previews_from_file(&input)?;
 
     if let Some(preview) = previews.last() {
-        preview.save(output)?;
+        preview
+            .resize(*width, *height, image::imageops::FilterType::Triangle) // keeps aspect ratio
+            .save(output)?;
     }
 
     Ok(())
@@ -229,9 +273,13 @@ fn command_gcode(matches: &ArgMatches) -> Result<()> {
 fn command_3mf(matches: &ArgMatches) -> Result<()> {
     let input = matches.get_one::<String>("INPUT").unwrap();
     let output = matches.get_one::<String>("OUTPUT").unwrap();
+    let width = *matches.get_one::<u32>("WIDTH").unwrap();
+    let height = *matches.get_one::<u32>("HEIGHT").unwrap();
 
     let preview = threemf::extract_preview_from_file(&input)?;
-    preview.save(output)?;
+    preview
+        .resize(width, height, image::imageops::FilterType::Triangle) // keeps aspect ratio
+        .save(output)?;
 
     Ok(())
 }
