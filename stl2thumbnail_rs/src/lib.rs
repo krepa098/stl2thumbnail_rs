@@ -6,4 +6,5 @@ pub mod mesh;
 pub mod parser;
 pub mod picture;
 pub mod rasterbackend;
+pub mod threemf;
 pub mod zbuffer;

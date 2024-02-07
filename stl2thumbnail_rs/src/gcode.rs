@@ -35,7 +35,7 @@ pub fn extract_previews(content: &str) -> Result<Vec<DynamicImage>> {
             }
         }
 
-        if in_thumbnail_section {
+        if in_thumbnail_section && trimmed_line.starts_with(';') {
             let (_, base64) = trimmed_line.split_at(1);
             base64_image.push_str(base64.trim());
         }

@@ -152,6 +152,31 @@ fn main() -> Result<()> {
                 .help("Prints this"),
         );
 
+    let threemf_command = Command::new("3mf")
+        .about("Extracts a thumbnail embedded in a gcode file")
+        .arg(
+            Arg::new("INPUT")
+                .short('i')
+                .index(1)
+                .long("input")
+                .help("Input filename")
+                .required(true),
+        )
+        .arg(
+            Arg::new("OUTPUT")
+                .short('o')
+                .index(2)
+                .long("output")
+                .help("Output filename")
+                .required(true),
+        )
+        .arg(
+            Arg::new("HELP")
+                .long("help")
+                .action(ArgAction::HelpLong)
+                .help("Prints this"),
+        );
+
     let matches = Command::new("stl2thumbnail")
         .version(clap::crate_version!())
         .arg_required_else_help(true)
@@ -159,12 +184,14 @@ fn main() -> Result<()> {
         .about("STL thumbnail generator")
         .subcommand(stl_command)
         .subcommand(gcode_command)
+        .subcommand(threemf_command)
         .get_matches();
 
     if let Some((subcommand, matches)) = matches.subcommand() {
         match subcommand {
             "stl" => command_stl(matches)?,
             "gcode" => command_gcode(matches)?,
+            "3mf" => command_3mf(matches)?,
             _ => unimplemented!(),
         }
     }
@@ -237,6 +264,16 @@ fn command_gcode(matches: &ArgMatches) -> Result<()> {
     if let Some(preview) = previews.last() {
         preview.save(output)?;
     }
+
+    Ok(())
+}
+
+fn command_3mf(matches: &ArgMatches) -> Result<()> {
+    let input = matches.get_one::<String>("INPUT").unwrap();
+    let output = matches.get_one::<String>("OUTPUT").unwrap();
+
+    let preview = threemf::extract_preview_from_file(&input)?;
+    preview.save(output)?;
 
     Ok(())
 }
