@@ -20,29 +20,29 @@ _gitname="stl2thumbnail_rs"
 _gitbranch="master"
 
 pkgver() {
-  cd "${_pkgname}"
+  cd ${_pkgname}
   git describe --long --tags | sed "s/\([^-]*-g\)/r\1/;s/-/./g"
 }
 
 build() {
-  cd "${_pkgname}/stl2thumbnail_rs"
+  cd ${_pkgname}/stl2thumbnail_rs
   cargo build --release
 }
 
 prepare() {
-  cd "${_pkgname}"
+  cd ${_pkgname}
 }
 
 package() {
-  mkdir -p "${pkgdir}/usr/bin"
-  cp "${_pkgname}/stl2thumbnail_rs/target/release/stl2thumbnail" "${pkgdir}/usr/bin"
+  mkdir -p ${pkgdir}/usr/bin
+  cp ${_pkgname}/stl2thumbnail_rs/target/release/stl2thumbnail ${pkgdir}/usr/bin
 
-  mkdir -p "${pkgdir}/usr/lib"
-  cp "${_pkgname}/stl2thumbnail_rs/target/release/libstl2thumbnail.so" "${pkgdir}/usr/lib"
+  mkdir -p ${pkgdir}/usr/lib
+  cp ${_pkgname}/stl2thumbnail_rs/target/release/libstl2thumbnail.so ${pkgdir}/usr/lib
   
-  mkdir -p "${pkgdir}/usr/share/thumbnailers"
-  cp "${_pkgname}/desktop_integration/linux/gnome/stl.thumbnailer" "${pkgdir}/usr/share/thumbnailers"
+  mkdir -p ${pkgdir}/usr/share/thumbnailers
+  cp ${_pkgname}/desktop_integration/linux/gnome/*.thumbnailer ${pkgdir}/usr/share/thumbnailers
   
-  mkdir -p "${pkgdir}/usr/include"
-  cp "${_pkgname}/stl2thumbnail_rs/include/stl2thumbnail.h" "${pkgdir}/usr/include"
+  mkdir -p ${pkgdir}/usr/include
+  cp ${_pkgname}/stl2thumbnail_rs/include/*.h ${pkgdir}/usr/include
 }
