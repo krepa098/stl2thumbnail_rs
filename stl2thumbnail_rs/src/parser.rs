@@ -1,4 +1,5 @@
 use crate::mesh::*;
+use anyhow::bail;
 use anyhow::Result;
 use byteorder::{LittleEndian, ReadBytesExt};
 use scan_fmt::scan_fmt;
@@ -9,6 +10,7 @@ use std::io::{BufRead, BufReader, Read, Seek, SeekFrom};
 const HEADER_SIZE: u64 = 80;
 const TRIANGLE_SIZE: u64 = 50;
 
+#[derive(Debug, Clone, Copy)]
 pub enum StlType {
     Binary,
     Ascii,
@@ -125,19 +127,33 @@ impl Parser<fs::File> {
 }
 
 fn deduce_stl_type<T: BufRead + io::Seek>(reader: &mut T) -> Result<StlType> {
+    // check if file starts with 'solid'
+    let mut data = vec![0u8; 5];
+    reader.read_exact(&mut data)?;
+
+    if data
+        .iter()
+        .zip("solid".chars())
+        .all(|(a, b)| a.to_ascii_lowercase() == b as u8)
+    {
+        return Ok(StlType::Ascii);
+    }
+
     // skip header
+    reader.rewind()?;
     reader.seek(SeekFrom::Start(HEADER_SIZE))?;
 
-    // the best way to distinguish between 'ascii' and 'bin' files is to check whether the
+    // check if it is a valid binary file by confirming that the
     // specified triangle count matches the size of the file
+    // (the header does not include a magic number)
     let triangles = reader.read_u32::<LittleEndian>()? as u64;
     let filesize = reader.seek(SeekFrom::End(0))?;
     if triangles * TRIANGLE_SIZE + HEADER_SIZE + std::mem::size_of::<u32>() as u64 == filesize {
         return Ok(StlType::Binary);
     }
 
-    // Note: also malformed binary STL files get classified as 'ascii'
-    Ok(StlType::Ascii)
+    // not a valid stl file
+    bail!("not an STL file")
 }
 
 fn read_ascii_line<T: BufRead>(reader: &mut T) -> Result<String> {
