@@ -1,5 +1,6 @@
 #![cfg(windows)]
 
+mod com_interface;
 mod generator;
 
 use com::sys::IID;
