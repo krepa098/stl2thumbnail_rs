@@ -150,13 +150,13 @@ impl RasterBackend {
 
             let v = &t.vertices;
 
-            let v0 = matmul(&mvp, &v[0]);
-            let v1 = matmul(&mvp, &v[1]);
-            let v2 = matmul(&mvp, &v[2]);
+            let v0 = transform_point(&mvp, &v[0]);
+            let v1 = transform_point(&mvp, &v[1]);
+            let v2 = transform_point(&mvp, &v[2]);
 
-            let v0m = matmul(&model, &v[0]);
-            let v1m = matmul(&model, &v[1]);
-            let v2m = matmul(&model, &v[2]);
+            let v0m = transform_point(&model, &v[0]);
+            let v1m = transform_point(&model, &v[1]);
+            let v2m = transform_point(&model, &v[2]);
 
             // triangle bounding box
             let min_x = v0.x.min(v1.x).min(v2.x);
@@ -274,15 +274,14 @@ fn edge_fn(a: &Vec2, b: &Vec2, c: &Vec2) -> f32 {
 
 fn scale_for_unitsize(mvp: &Mat4, aabb: &AABB) -> f32 {
     let edges = [
-        //(mvp * Vec3::new(aabb.lower.x, aabb.lower.y, aabb.lower.z).to_homogeneous()).xyz(),
-        matmul(mvp, &Vec3::new(aabb.lower.x, aabb.lower.y, aabb.lower.z)),
-        matmul(mvp, &Vec3::new(aabb.upper.x, aabb.lower.y, aabb.lower.z)),
-        matmul(mvp, &Vec3::new(aabb.lower.x, aabb.upper.y, aabb.lower.z)),
-        matmul(mvp, &Vec3::new(aabb.upper.x, aabb.upper.y, aabb.lower.z)),
-        matmul(mvp, &Vec3::new(aabb.lower.x, aabb.lower.y, aabb.upper.z)),
-        matmul(mvp, &Vec3::new(aabb.upper.x, aabb.lower.y, aabb.upper.z)),
-        matmul(mvp, &Vec3::new(aabb.lower.x, aabb.upper.y, aabb.upper.z)),
-        matmul(mvp, &Vec3::new(aabb.upper.x, aabb.upper.y, aabb.upper.z)),
+        transform_point(mvp, &Vec3::new(aabb.lower.x, aabb.lower.y, aabb.lower.z)),
+        transform_point(mvp, &Vec3::new(aabb.upper.x, aabb.lower.y, aabb.lower.z)),
+        transform_point(mvp, &Vec3::new(aabb.lower.x, aabb.upper.y, aabb.lower.z)),
+        transform_point(mvp, &Vec3::new(aabb.upper.x, aabb.upper.y, aabb.lower.z)),
+        transform_point(mvp, &Vec3::new(aabb.lower.x, aabb.lower.y, aabb.upper.z)),
+        transform_point(mvp, &Vec3::new(aabb.upper.x, aabb.lower.y, aabb.upper.z)),
+        transform_point(mvp, &Vec3::new(aabb.lower.x, aabb.upper.y, aabb.upper.z)),
+        transform_point(mvp, &Vec3::new(aabb.upper.x, aabb.upper.y, aabb.upper.z)),
     ];
 
     let mut min = Vec3::new(f32::MAX, f32::MAX, f32::MAX);
@@ -314,8 +313,8 @@ fn draw_grid(pic: &mut Picture, vp: &Mat4, z: f32, color: &Vec3, model_size: Vec
         let p1 = Vec3::new(p0.x, -grid_count as f32 * grid_spacing * 0.5, z);
 
         // to screen space
-        let sp0 = matmul(vp, &p0).xy();
-        let sp1 = matmul(vp, &p1).xy();
+        let sp0 = transform_point(vp, &p0).xy();
+        let sp1 = transform_point(vp, &p1).xy();
 
         pic.thick_line(
             ((sp0.x + 1.0) / 2.0 * pic.width() as f32) as i32,

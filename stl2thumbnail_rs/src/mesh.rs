@@ -10,8 +10,8 @@ pub type Vec3 = glm::Vec3;
 pub type Vec4 = glm::Vec4;
 
 // helpers
-pub fn matmul(m: &Mat4, v: &Vec3) -> Vec3 {
-    (m * v.to_homogeneous()).xyz()
+pub fn transform_point(m: &Mat4, v: &Vec3) -> Vec3 {
+    (m * Vec4::new(v.x, v.y, v.z, 1.0)).xyz()
 }
 
 // Triangle

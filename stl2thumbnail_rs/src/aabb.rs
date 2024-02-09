@@ -39,8 +39,8 @@ impl AABB {
     }
 
     pub fn apply_transform(&mut self, transform: &Mat4) {
-        self.lower = matmul(transform, &self.lower);
-        self.upper = matmul(transform, &self.upper);
+        self.lower = transform_point(transform, &self.lower);
+        self.upper = transform_point(transform, &self.upper);
     }
 }
 
