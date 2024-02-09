@@ -205,12 +205,12 @@ fn command_stl(matches: &ArgMatches) -> Result<()> {
     let height = matches.get_one::<u32>("HEIGHT").unwrap();
 
     let settings = Settings {
-        verbose: matches.contains_id("VERBOSE"),
-        lazy: matches.contains_id("LAZY"),
-        recalculate_normals: matches.contains_id("RECALC_NORMALS"),
-        size_hint: matches.contains_id("SIZE_HINT") && *height >= 256,
-        turntable: matches.contains_id("TURNTABLE"),
-        grid: matches.contains_id("GRID_VISIBLE"),
+        verbose: *matches.get_one::<bool>("VERBOSE").unwrap(),
+        lazy: *matches.get_one::<bool>("LAZY").unwrap(),
+        recalculate_normals: *matches.get_one::<bool>("RECALC_NORMALS").unwrap(),
+        size_hint: *matches.get_one::<bool>("SIZE_HINT").unwrap() && *height >= 256,
+        turntable: *matches.get_one::<bool>("TURNTABLE").unwrap(),
+        grid: *matches.get_one::<bool>("GRID_VISIBLE").unwrap(),
         cam_elevation: *matches.get_one::<f32>("CAM_ELEVATION").unwrap(),
         cam_azimuth: *matches.get_one::<f32>("CAM_AZIMUTH").unwrap(),
         timeout: matches
