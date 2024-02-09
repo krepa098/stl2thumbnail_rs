@@ -31,7 +31,7 @@ impl<T: Read + Seek> Parser<T> {
         let mut reader = BufReader::new(inner);
 
         let stl_type = deduce_stl_type(&mut reader)?;
-        reader.seek(SeekFrom::Start(0))?;
+        reader.rewind()?;
 
         // figure out header size
         let mut header_length = 0;
@@ -127,15 +127,22 @@ impl Parser<fs::File> {
 }
 
 fn deduce_stl_type<T: BufRead + io::Seek>(reader: &mut T) -> Result<StlType> {
-    // check if file starts with 'solid'
+    // check if file starts with 'solid', though
+    // some malformed binary files also start with 'solid'
     let mut data = vec![0u8; 5];
     reader.read_exact(&mut data)?;
 
-    if data
+    let starts_with_solid = data
         .iter()
         .zip("solid".chars())
-        .all(|(a, b)| a.to_ascii_lowercase() == b as u8)
-    {
+        .all(|(a, b)| a.to_ascii_lowercase() == b as u8);
+
+    // we thus read a couple more bytes to check if they are ascii characters
+    let mut data = vec![0u8; 128];
+    reader.read_exact(&mut data)?;
+    let following_bytes_are_ascii = data.iter().all(|d| d.is_ascii());
+
+    if starts_with_solid && following_bytes_are_ascii {
         return Ok(StlType::Ascii);
     }
 
