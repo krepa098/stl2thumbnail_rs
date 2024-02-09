@@ -2,6 +2,7 @@
 
 mod com_interface;
 mod generator;
+mod generator_impl;
 
 use com::sys::IID;
 use generator::*;
