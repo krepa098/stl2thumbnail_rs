@@ -9,7 +9,7 @@ use std::time::{Duration, Instant};
 #[derive(Debug)]
 pub struct RenderOptions {
     pub view_pos: Vec3,
-    pub light_pos: Vec3,
+    pub light_normal: Vec3,
     pub light_color: Vec3,
     pub ambient_color: Vec3,
     pub model_color: Vec3,
@@ -24,8 +24,8 @@ impl Default for RenderOptions {
     fn default() -> Self {
         Self {
             view_pos: Vec3::new(-1.0, 1.0, -1.0).normalize(),
-            light_pos: Vec3::new(-1.0, 0.5, -0.5),
-            light_color: Vec3::new(0.6, 0.6, 0.6),
+            light_normal: -Vec3::new(1.0, 1.0, -3.0).normalize(),
+            light_color: Vec3::new(0.8, 0.8, 0.8),
             ambient_color: Vec3::new(0.4, 0.4, 0.4),
             model_color: Vec3::new(0.0, 0.45, 1.0),
             grid_color: Vec3::new(0.1, 0.1, 0.1),
@@ -141,10 +141,10 @@ impl RasterBackend {
                 }
             }
 
-            let normal = -t.normal;
+            let normal = t.normal;
 
             // backface culling
-            if glm::dot(&eye_normal, &normal) < 0.0 {
+            if glm::dot(&eye_normal, &normal) > 0.0 {
                 continue;
             }
 
@@ -153,10 +153,6 @@ impl RasterBackend {
             let v0 = transform_point(&mvp, &v[0]);
             let v1 = transform_point(&mvp, &v[1]);
             let v2 = transform_point(&mvp, &v[2]);
-
-            let v0m = transform_point(&model, &v[0]);
-            let v1m = transform_point(&model, &v[1]);
-            let v2m = transform_point(&model, &v[2]);
 
             // triangle bounding box
             let min_x = v0.x.min(v1.x).min(v2.x);
@@ -198,31 +194,13 @@ impl RasterBackend {
                             w0 * v0.z + w1 * v1.z + w2 * v2.z,
                         );
 
-                        // fragment position in world space
-                        let fp = Vec3::new(
-                            w0 * v0m.x + w1 * v1m.x + w2 * v2m.x,
-                            w0 * v0m.y + w1 * v1m.y + w2 * v2m.y,
-                            w0 * v0m.z + w1 * v1m.z + w2 * v2m.z,
-                        );
-
-                        //let fp = matmul(&mvp_inv, &frag_pos);
-
                         if zbuf.test_and_set(x, y, frag_pos.z) {
-                            // calculate lightning
-                            let light_normal = (self.render_options.light_pos - fp).normalize(); // normal frag pos to light (world space)
-                            let view_normal = (self.render_options.view_pos - fp).normalize(); // normal frag pos to view (world space)
-                            let reflect_dir = glm::reflect_vec(&-light_normal, &normal);
-
-                            // diffuse
-                            let diff_color =
-                                glm::dot(&normal, &light_normal).max(0.0) * self.render_options.light_color * 1.0;
-
-                            // specular
-                            let spec_color = (glm::dot(&view_normal, &reflect_dir).powf(16.0) * 0.7)
+                            // diffuse lightning
+                            let diff_color = glm::dot(&normal, &self.render_options.light_normal).max(0.0)
                                 * self.render_options.light_color;
 
                             // merge
-                            let mut color = self.render_options.ambient_color + diff_color + spec_color;
+                            let mut color = self.render_options.ambient_color + diff_color;
                             color.x *= self.render_options.model_color.x;
                             color.y *= self.render_options.model_color.y;
                             color.z *= self.render_options.model_color.z;
