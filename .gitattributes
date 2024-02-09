@@ -1,0 +1,3 @@
+*.gcode linguist-vendored
+*.stl linguist-vendored
+*.3mf linguist-vendored
