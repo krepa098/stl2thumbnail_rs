@@ -14,11 +14,10 @@ use std::io::Cursor;
 use std::time::Duration;
 
 use stl2thumbnail::gcode;
+use stl2thumbnail::image;
 use stl2thumbnail::parser::Parser;
 use stl2thumbnail::picture::Picture;
 use stl2thumbnail::rasterbackend::RasterBackend;
-
-use stl2thumbnail::image;
 
 com::class! {
     pub class WinSTLThumbnailGenerator: IThumbnailProvider, IInitializeWithStream {
@@ -40,9 +39,6 @@ com::class! {
                 let mut backend = RasterBackend::new(cx as u32, cx as u32);
                 let (aabb, scale) = backend.fit_mesh_scale(&mesh);
                 backend.render_options.zoom = 1.05;
-                // Note: Icon cache sizes seem to be 16,32,48,96,256,768,1280,...
-                // 256 this is actually too small to be readable when it first appears,
-                // but 768 makes no sense either
                 backend.render_options.draw_size_hint = cx >= 256;
                 let pic = backend.render(&mesh, scale, &aabb, Some(Duration::from_secs(20)));
 
@@ -53,14 +49,6 @@ com::class! {
             }
 
             -1 // error
-
-            // **this works for testing**
-            // let mut pic = Picture::new(cx as usize, cx as usize);
-            // pic.test_pattern();
-            // *phbmp = create_hbitmap_from_picture(&pic);
-            // *pdw_alpha = 0x2; // WTSAT_ARGB
-
-            // return NOERROR
         }
     }
 
@@ -75,8 +63,6 @@ com::class! {
             }
 
             let len = *stat.cbSize.QuadPart() as usize;
-
-            println!("Got stream of length {}", len);
 
             // read the entire stream
             self.data.replace(vec![0; len as usize]);
