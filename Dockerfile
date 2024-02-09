@@ -23,7 +23,7 @@ USER builder
 WORKDIR /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-git
 RUN makepkg -cfs --noconfirm
 
-RUN mv *.pkg.tar.zst stl2thumbnail-git.pkg.tar.zst
+RUN mv stl2thumbnail-git-v*.pkg.tar.zst stl2thumbnail-git.pkg.tar.zst
 
 # install 'stl2thumbnail-git' pkg required by 'stl2thumbnail-kde-git'
 USER root
@@ -34,7 +34,7 @@ USER builder
 WORKDIR /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-kde-git
 RUN makepkg -cfs --noconfirm
 
-RUN mv *.pkg.tar.zst stl2thumbnail-kde-git.pkg.tar.zst
+RUN mv stl2thumbnail-kde-git-v*.pkg.tar.zst stl2thumbnail-kde-git.pkg.tar.zst
 
 # prepare files to be copied to host
 FROM scratch AS export-stage
