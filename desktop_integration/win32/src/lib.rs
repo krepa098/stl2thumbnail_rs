@@ -50,7 +50,74 @@ pub const CLSID_GENERATOR_CLASS_GCODE: IID = IID {
     data4: [0xAD, 0x72, 0x54, 0x64, 0x84, 0xED, 0xDA, 0xBC],
 };
 
-com::inproc_dll_module![
-    (CLSID_GENERATOR_CLASS_STL, WinSTLThumbnailGenerator),
-    (CLSID_GENERATOR_CLASS_GCODE, WinGCodehumbnailGenerator)
-];
+static mut _HMODULE: *mut ::core::ffi::c_void = ::core::ptr::null_mut();
+
+#[no_mangle]
+unsafe extern "system" fn DllMain(
+    hinstance: *mut ::core::ffi::c_void,
+    fdw_reason: u32,
+    _reserved: *mut ::core::ffi::c_void,
+) -> i32 {
+    const DLL_PROCESS_ATTACH: u32 = 1;
+    if fdw_reason == DLL_PROCESS_ATTACH {
+        unsafe {
+            _HMODULE = hinstance;
+        }
+    }
+    1
+}
+#[no_mangle]
+unsafe extern "system" fn DllGetClassObject(
+    class_id: *const ::com::sys::CLSID,
+    iid: *const ::com::sys::IID,
+    result: *mut *mut ::core::ffi::c_void,
+) -> ::com::sys::HRESULT {
+    assert!(
+        !class_id.is_null(),
+        "class id passed to DllGetClassObject should never be null"
+    );
+    let class_id = unsafe { &*class_id };
+    if class_id == &CLSID_GENERATOR_CLASS_STL {
+        let instance = <WinSTLThumbnailGenerator as ::com::production::Class>::Factory::allocate();
+        instance.QueryInterface(&*iid, result)
+    } else if class_id == &CLSID_GENERATOR_CLASS_GCODE {
+        let instance = <WinGCodehumbnailGenerator as ::com::production::Class>::Factory::allocate();
+        instance.QueryInterface(&*iid, result)
+    } else {
+        ::com::sys::CLASS_E_CLASSNOTAVAILABLE
+    }
+}
+#[no_mangle]
+extern "system" fn DllRegisterServer() -> ::com::sys::HRESULT {
+    ::com::production::registration::dll_register_server(&mut get_relevant_registry_keys())
+}
+#[no_mangle]
+extern "system" fn DllUnregisterServer() -> ::com::sys::HRESULT {
+    ::com::production::registration::dll_unregister_server(&mut get_relevant_registry_keys())
+}
+fn get_relevant_registry_keys() -> Vec<::com::production::registration::RegistryKeyInfo> {
+    use com::production::registration::RegistryKeyInfo;
+    let file_path = unsafe { ::com::production::registration::get_dll_file_path(_HMODULE) };
+    vec![
+        RegistryKeyInfo::new(
+            &::com::production::registration::class_key_path(CLSID_GENERATOR_CLASS_STL),
+            "",
+            stringify!(WinSTLThumbnailGenerator),
+        ),
+        RegistryKeyInfo::new(
+            &::com::production::registration::class_inproc_key_path(CLSID_GENERATOR_CLASS_STL),
+            "",
+            &file_path,
+        ),
+        RegistryKeyInfo::new(
+            &::com::production::registration::class_key_path(CLSID_GENERATOR_CLASS_GCODE),
+            "",
+            stringify!(WinGCodehumbnailGenerator),
+        ),
+        RegistryKeyInfo::new(
+            &::com::production::registration::class_inproc_key_path(CLSID_GENERATOR_CLASS_GCODE),
+            "",
+            &file_path,
+        ),
+    ]
+}
