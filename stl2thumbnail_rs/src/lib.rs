@@ -1,10 +1,19 @@
-pub mod aabb;
-pub mod encoder;
+use std::time::Duration;
+
 pub mod ffi;
 pub mod gcode;
-pub mod mesh;
-pub mod parser;
 pub mod picture;
-pub mod rasterbackend;
+pub mod stl;
 pub mod threemf;
-pub mod zbuffer;
+
+pub struct Settings {
+    pub verbose: bool,
+    pub lazy: bool,
+    pub recalculate_normals: bool,
+    pub turntable: bool,
+    pub size_hint: bool,
+    pub grid: bool,
+    pub cam_elevation: f32,
+    pub cam_azimuth: f32,
+    pub timeout: Option<Duration>,
+}

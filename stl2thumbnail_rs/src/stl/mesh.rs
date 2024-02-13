@@ -1,4 +1,4 @@
-use crate::parser::Parser;
+use super::parser::Parser;
 use std::cell::RefCell;
 use std::io::{Read, Seek};
 use std::ops::Index;

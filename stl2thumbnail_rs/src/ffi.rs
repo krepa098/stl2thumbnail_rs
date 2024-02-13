@@ -1,6 +1,6 @@
 use std::{ffi::CStr, mem::forget, os::raw::c_char};
 
-use crate::{gcode, parser::Parser, rasterbackend::RasterBackend, threemf};
+use crate::{gcode, stl::parser::Parser, stl::rasterbackend::RasterBackend, threemf};
 
 #[repr(C)]
 pub struct PictureBuffer {

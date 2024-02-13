@@ -1,4 +1,4 @@
-use crate::mesh::*;
+use super::mesh::*;
 
 #[derive(Debug, Clone, Copy)]
 pub struct AABB {

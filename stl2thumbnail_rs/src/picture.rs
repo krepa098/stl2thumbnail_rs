@@ -3,7 +3,7 @@ use image::{Pixel, RgbaImage};
 use std::convert::From;
 use std::i32;
 
-use crate::mesh::{Vec2, Vec4};
+use glm::{Vec2, Vec4};
 use std::ops::{Add, Mul};
 
 #[derive(Debug, PartialEq, Copy, Clone)]

@@ -1,7 +1,7 @@
-use crate::aabb::*;
-use crate::mesh::*;
+use super::aabb::*;
+use super::mesh::*;
+use super::zbuffer::*;
 use crate::picture::*;
-use crate::zbuffer::*;
 
 use std::f32::consts::PI;
 use std::time::{Duration, Instant};
