@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QImage>
 #include <QString>
+#include <QMimeDatabase>
 
 Q_LOGGING_CATEGORY(LOG_STL_THUMBS, "STLModelThumbs")
 
@@ -50,16 +51,29 @@ void cleanup(void *data)
 
 bool StlThumbCreator::create(const QString &path, int width, int height, QImage &img)
 {
-    // qCDebug(LOG_STL_THUMBS) << "Creating thumbnail for " << path;
+    auto mime_type = QMimeDatabase().mimeTypeForFile(path);
 
-    s2t::RenderSettings settings;
-    settings.width = width;
-    settings.height = height;
-    settings.timeout = 20000; // 20s
-    settings.size_hint = height >= 256;
+    s2t::PictureBuffer pic;
 
-    // render
-    const auto pic = s2t::render_stl(path.toStdString().c_str(), settings);
+    if (mime_type.inherits("model/stl"))
+    {
+        s2t::RenderSettings settings;
+        settings.width = width;
+        settings.height = height;
+        settings.timeout = 20000; // 20s
+        settings.size_hint = height >= 256;
+
+        // render
+        pic = s2t::render_stl(path.toStdString().c_str(), settings);
+    }
+    else if (mime_type.inherits("text/x.gcode"))
+    {
+        s2t::extract_gcode_preview(path.toStdString().c_str(), width, height);
+    }
+    else if (mime_type.inherits("model/3mf"))
+    {
+        s2t::extract_3mf_preview(path.toStdString().c_str(), width, height);
+    }
 
     // failed?
     if (!pic.data)

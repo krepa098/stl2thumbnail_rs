@@ -2,7 +2,7 @@
 Type=Service
 Name=STL Models
 X-KDE-ServiceTypes=ThumbCreator
-MimeType=model/stl;application/sla;model/x.stl-ascii;model/x.stl-binary;
+MimeType=model/stl;application/sla;model/x.stl-ascii;model/x.stl-binary;text/x.gcode;model/3mf;application/vnd.ms-3mfdocument;
 CacheThumbnail=true
 X-KDE-Library=stl2thumbnail-kde
 ThumbnailerVersion=1
