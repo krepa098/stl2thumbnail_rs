@@ -4,7 +4,7 @@
 
 # stl2thumbnail_rs 
 
-A thumbnail generator for stl, 3mf, and gcode files.
+A thumbnail generator for Windows and Linux supporting stl, 3mf, and gcode files.
 
 <img src=".media/preview.png" width="600">
 
