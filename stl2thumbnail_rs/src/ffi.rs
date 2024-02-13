@@ -8,10 +8,14 @@ pub struct PictureBuffer {
     data: *const u8,
     /// length of the buffer
     len: u32,
-    /// stride of the buffer
+    /// stride of the picture
     stride: u32,
-    /// depth of the buffer
+    /// depth of the picture
     depth: u32,
+    /// width of the picture
+    width: u32,
+    /// height of the picture
+    height: u32,
 }
 
 #[repr(C)]
@@ -53,8 +57,6 @@ pub extern "C" fn render_stl(path: *const c_char, settings: RenderSettings) -> P
                     let boxed_data = pic.data_as_boxed_slice();
                     let data = boxed_data.as_ptr();
                     let len = pic.data().len() as u32;
-                    let stride = pic.stride();
-                    let depth = pic.depth();
 
                     // leak the memory owned by boxed_data
                     forget(boxed_data);
@@ -62,8 +64,10 @@ pub extern "C" fn render_stl(path: *const c_char, settings: RenderSettings) -> P
                     return PictureBuffer {
                         data,
                         len,
-                        stride,
-                        depth,
+                        stride: pic.stride(),
+                        depth: pic.depth(),
+                        width: pic.width(),
+                        height: pic.height(),
                     };
                 }
             }
@@ -75,6 +79,8 @@ pub extern "C" fn render_stl(path: *const c_char, settings: RenderSettings) -> P
         len: 0,
         stride: 0,
         depth: 0,
+        width: 0,
+        height: 0,
     }
 }
 
@@ -93,8 +99,6 @@ pub extern "C" fn extract_gcode_preview(path: *const c_char, width: u32, height:
                 if let Some(pic) = previews.last_mut() {
                     pic.resize_keep_aspect_ratio(width, height);
 
-                    let stride = pic.stride();
-                    let depth = pic.depth();
                     let boxed_data = pic.data_as_boxed_slice();
                     let data = boxed_data.as_ptr();
                     let len = boxed_data.len() as u32;
@@ -105,8 +109,10 @@ pub extern "C" fn extract_gcode_preview(path: *const c_char, width: u32, height:
                     return PictureBuffer {
                         data,
                         len,
-                        stride,
-                        depth,
+                        stride: pic.stride(),
+                        depth: pic.depth(),
+                        width: pic.width(),
+                        height: pic.height(),
                     };
                 }
             }
@@ -118,6 +124,8 @@ pub extern "C" fn extract_gcode_preview(path: *const c_char, width: u32, height:
         len: 0,
         stride: 0,
         depth: 0,
+        width: 0,
+        height: 0,
     }
 }
 
@@ -133,8 +141,6 @@ pub extern "C" fn extract_3mf_preview(path: *const c_char, width: u32, height: u
             if let Ok(mut pic) = threemf::extract_preview_from_file(path) {
                 pic.resize_keep_aspect_ratio(width, height);
 
-                let stride = pic.stride();
-                let depth = pic.depth();
                 let boxed_data = pic.data_as_boxed_slice();
                 let data = boxed_data.as_ptr();
                 let len = boxed_data.len() as u32;
@@ -145,8 +151,10 @@ pub extern "C" fn extract_3mf_preview(path: *const c_char, width: u32, height: u
                 return PictureBuffer {
                     data,
                     len,
-                    stride,
-                    depth,
+                    stride: pic.stride(),
+                    depth: pic.depth(),
+                    width: pic.width(),
+                    height: pic.height(),
                 };
             }
         }
@@ -157,6 +165,8 @@ pub extern "C" fn extract_3mf_preview(path: *const c_char, width: u32, height: u
         len: 0,
         stride: 0,
         depth: 0,
+        width: 0,
+        height: 0,
     }
 }
 

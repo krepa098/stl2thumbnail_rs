@@ -11,10 +11,14 @@ struct PictureBuffer {
   const uint8_t *data;
   /// length of the buffer
   uint32_t len;
-  /// stride of the buffer
+  /// stride of the picture
   uint32_t stride;
-  /// depth of the buffer
+  /// depth of the picture
   uint32_t depth;
+  /// width of the picture
+  uint32_t width;
+  /// height of the picture
+  uint32_t height;
 };
 
 struct RenderSettings {

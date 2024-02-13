@@ -84,7 +84,7 @@ bool StlThumbCreator::create(const QString &path, int width, int height, QImage 
     auto container = new PicContainer{pic};
 
     // QImage owns the buffer and it has to stay valid throughout the life of the QImage
-    img = QImage(pic.data, width, height, pic.stride, QImage::Format_RGBA8888, cleanup, container);
+    img = QImage(pic.data, pic.width, pic.height, pic.stride, QImage::Format_RGBA8888, cleanup, container);
 
     return true;
 }
