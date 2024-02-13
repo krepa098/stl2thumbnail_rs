@@ -12,7 +12,6 @@ use std::io::Cursor;
 use std::time::Duration;
 
 use stl2thumbnail::gcode;
-use stl2thumbnail::image;
 use stl2thumbnail::parser::Parser;
 use stl2thumbnail::picture::Picture;
 use stl2thumbnail::rasterbackend::RasterBackend;
