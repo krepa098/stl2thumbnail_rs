@@ -42,6 +42,11 @@ PictureBuffer render_stl(const char *path, RenderSettings settings);
 /// Free the buffer with free_picture_buffer
 PictureBuffer extract_gcode_preview(const char *path, uint32_t width, uint32_t height);
 
+/// Extracts the thumbnail embedded into the 3mf file
+///
+/// Free the buffer with free_picture_buffer
+PictureBuffer extract_3mf_preview(const char *path, uint32_t width, uint32_t height);
+
 /// Frees the memory of a PictureBuffer
 void free_picture_buffer(PictureBuffer *buffer);
 

@@ -1,6 +1,6 @@
 use std::{ffi::CStr, mem::forget, os::raw::c_char};
 
-use crate::{gcode, parser::Parser, rasterbackend::RasterBackend};
+use crate::{gcode, parser::Parser, rasterbackend::RasterBackend, threemf};
 
 #[repr(C)]
 pub struct PictureBuffer {
@@ -93,8 +93,8 @@ pub extern "C" fn extract_gcode_preview(path: *const c_char, width: u32, height:
                 if let Some(pic) = previews.last_mut() {
                     pic.resize_keep_aspect_ratio(width, height);
 
-                    let stride = pic.width() * 4;
-                    let depth = 4;
+                    let stride = pic.stride();
+                    let depth = pic.depth();
                     let boxed_data = pic.data_as_boxed_slice();
                     let data = boxed_data.as_ptr();
                     let len = boxed_data.len() as u32;
@@ -109,6 +109,45 @@ pub extern "C" fn extract_gcode_preview(path: *const c_char, width: u32, height:
                         depth,
                     };
                 }
+            }
+        }
+    }
+
+    PictureBuffer {
+        data: std::ptr::null(),
+        len: 0,
+        stride: 0,
+        depth: 0,
+    }
+}
+
+#[no_mangle]
+/// Extracts the thumbnail embedded into the 3mf file
+///
+/// Free the buffer with free_picture_buffer
+pub extern "C" fn extract_3mf_preview(path: *const c_char, width: u32, height: u32) -> PictureBuffer {
+    if !path.is_null() {
+        let path = unsafe { CStr::from_ptr(path) }.to_str();
+
+        if let Ok(path) = path {
+            if let Ok(mut pic) = threemf::extract_preview_from_file(path) {
+                pic.resize_keep_aspect_ratio(width, height);
+
+                let stride = pic.stride();
+                let depth = pic.depth();
+                let boxed_data = pic.data_as_boxed_slice();
+                let data = boxed_data.as_ptr();
+                let len = boxed_data.len() as u32;
+
+                // leak the memory owned by boxed_data
+                forget(boxed_data);
+
+                return PictureBuffer {
+                    data,
+                    len,
+                    stride,
+                    depth,
+                };
             }
         }
     }
