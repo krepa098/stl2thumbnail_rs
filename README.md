@@ -6,15 +6,15 @@
 
 A thumbnail generator for stl, 3mf, and gcode files.
 
-<img src="pics/preview.png" width="600">
+<img src=".media/preview.png" width="600">
 
 ## Supported Desktops
 
 | Desktop  | stl  | gcode | 3mf  |
 |----------|------|-------|------|
-| Gnome    | [x]  | [x]   | [x]  |
-| KDE      | [x]  | [x]   | [x]  |
-| Windows  | [x]  | [x]   | [ ]  |
+| Gnome    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| KDE      | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| Windows  | :heavy_check_mark: | :heavy_check_mark: | /                  |
 
 ## License
 This work is licensed under CC BY 4.0 
