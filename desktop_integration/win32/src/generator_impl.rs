@@ -12,9 +12,9 @@ use std::io::Cursor;
 use std::time::Duration;
 
 use stl2thumbnail::gcode;
-use stl2thumbnail::parser::Parser;
 use stl2thumbnail::picture::Picture;
-use stl2thumbnail::rasterbackend::RasterBackend;
+use stl2thumbnail::stl::parser::Parser;
+use stl2thumbnail::stl::rasterbackend::RasterBackend;
 
 pub unsafe fn read_all_from_stream(data: &RefCell<Vec<u8>>, pstream: LPSTREAM, _grf_mode: DWORD) -> HRESULT {
     // figure out the length of the stream
