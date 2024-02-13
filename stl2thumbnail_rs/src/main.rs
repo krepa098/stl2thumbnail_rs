@@ -305,7 +305,6 @@ fn create_still(
     path: &str,
     settings: &Settings,
 ) -> Result<()> {
-    let elevation_angle = settings.cam_elevation;
     let mut backend = RasterBackend::new(width, height);
     backend.render_options.grid_visible = settings.grid;
 
