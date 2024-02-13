@@ -262,9 +262,7 @@ fn command_gcode(matches: &ArgMatches) -> Result<()> {
     let mut previews = gcode::extract_previews_from_file(&input)?;
 
     if let Some(preview) = previews.last_mut() {
-        preview
-            .resize(*width, *height) // keeps aspect ratio
-            .save(output)?;
+        preview.resize_keep_aspect_ratio(*width, *height).save(output)?;
     }
 
     Ok(())
@@ -277,9 +275,7 @@ fn command_3mf(matches: &ArgMatches) -> Result<()> {
     let height = *matches.get_one::<u32>("HEIGHT").unwrap();
 
     let mut preview = threemf::extract_preview_from_file(&input)?;
-    preview
-        .resize(width, height) // keeps aspect ratio
-        .save(output)?;
+    preview.resize_keep_aspect_ratio(width, height).save(output)?;
 
     Ok(())
 }
