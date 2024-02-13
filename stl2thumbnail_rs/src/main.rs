@@ -259,11 +259,11 @@ fn command_gcode(matches: &ArgMatches) -> Result<()> {
     let width = matches.get_one::<u32>("WIDTH").unwrap();
     let height = matches.get_one::<u32>("HEIGHT").unwrap();
 
-    let previews = gcode::extract_previews_from_file(&input)?;
+    let mut previews = gcode::extract_previews_from_file(&input)?;
 
-    if let Some(preview) = previews.last() {
+    if let Some(preview) = previews.last_mut() {
         preview
-            .resize(*width, *height, image::imageops::FilterType::Triangle) // keeps aspect ratio
+            .resize(*width, *height) // keeps aspect ratio
             .save(output)?;
     }
 
@@ -276,9 +276,9 @@ fn command_3mf(matches: &ArgMatches) -> Result<()> {
     let width = *matches.get_one::<u32>("WIDTH").unwrap();
     let height = *matches.get_one::<u32>("HEIGHT").unwrap();
 
-    let preview = threemf::extract_preview_from_file(&input)?;
+    let mut preview = threemf::extract_preview_from_file(&input)?;
     preview
-        .resize(width, height, image::imageops::FilterType::Triangle) // keeps aspect ratio
+        .resize(width, height) // keeps aspect ratio
         .save(output)?;
 
     Ok(())

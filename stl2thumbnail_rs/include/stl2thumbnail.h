@@ -40,7 +40,7 @@ PictureBuffer render_stl(const char *path, RenderSettings settings);
 /// the highest resolution is returned
 ///
 /// Free the buffer with free_picture_buffer
-PictureBuffer extract_gcode_preview(const char *path);
+PictureBuffer extract_gcode_preview(const char *path, uint32_t width, uint32_t height);
 
 /// Frees the memory of a PictureBuffer
 void free_picture_buffer(PictureBuffer *buffer);

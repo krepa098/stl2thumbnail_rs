@@ -1,5 +1,5 @@
 use anyhow::Result;
-use image::DynamicImage;
+use image::{Pixel, RgbaImage};
 use std::convert::From;
 use std::i32;
 
@@ -119,78 +119,65 @@ impl From<&Vec4> for Color {
 
 #[derive(Debug)]
 pub struct Picture {
-    data: Vec<u8>,
-    width: u32,
-    height: u32,
-    depth: u32,
+    inner: RgbaImage,
 }
 
 impl Picture {
     pub fn new(width: u32, height: u32) -> Self {
-        let depth = 4;
-        let data = vec![0; (width * height * depth) as usize];
-
         let mut pic = Picture {
-            data,
-            width,
-            height,
-            depth,
+            inner: RgbaImage::new(width, height),
         };
 
         pic.fill(&(0, 0, 0, 255).into());
         pic
     }
 
-    pub fn new_with_rgba8_data(width: u32, height: u32, data: &[u8]) -> Self {
-        Picture {
-            data: data.to_vec(),
-            width,
-            height,
-            depth: 4,
-        }
+    pub fn from_img_buffer(img_buf: RgbaImage) -> Self {
+        Picture { inner: img_buf }
     }
 
     pub fn stride(&self) -> u32 {
-        self.width * self.depth
+        self.inner.width() * self.depth()
     }
 
     pub fn width(&self) -> u32 {
-        self.width
+        self.inner.width()
     }
 
     pub fn height(&self) -> u32 {
-        self.height
+        self.inner.height()
     }
 
     pub fn depth(&self) -> u32 {
-        self.depth
+        4
     }
 
     pub fn data(&self) -> &[u8] {
-        self.data.as_slice()
+        &self.inner
     }
 
     pub fn to_bgra(&self) -> Vec<u8> {
-        let mut bgra = Vec::with_capacity(self.data.len());
-        for i in (0..self.data.len()).step_by(4) {
-            bgra.push(self.data[i + 2]);
-            bgra.push(self.data[i + 1]);
-            bgra.push(self.data[i]);
-            bgra.push(self.data[i + 3]);
+        let mut bgra_img = RgbaImage::new(self.width(), self.height());
+
+        for (rgba, bgra) in self.inner.pixels().zip(bgra_img.pixels_mut()) {
+            bgra.channels_mut()[0] = rgba.channels()[2];
+            bgra.channels_mut()[1] = rgba.channels()[1];
+            bgra.channels_mut()[2] = rgba.channels()[0];
         }
 
-        bgra
+        bgra_img.to_vec()
     }
 
-    pub fn data_as_boxed_slice(&mut self) -> Box<[u8]> {
-        self.data.clone().into_boxed_slice()
+    pub fn data_as_boxed_slice(&self) -> Box<[u8]> {
+        self.data().to_vec().into_boxed_slice()
     }
 
     pub fn fill(&mut self, rgba: &Color) {
-        for y in 0..self.height {
-            for x in 0..self.width {
-                self.set(x, y, rgba);
-            }
+        for pixel in self.inner.pixels_mut() {
+            pixel.channels_mut()[0] = rgba.r;
+            pixel.channels_mut()[1] = rgba.g;
+            pixel.channels_mut()[2] = rgba.b;
+            pixel.channels_mut()[3] = rgba.a;
         }
     }
 
@@ -284,19 +271,20 @@ impl Picture {
     }
 
     pub fn set(&mut self, x: u32, y: u32, rgba: &Color) {
-        if x >= self.width || y >= self.height {
+        if x >= self.width() || y >= self.height() {
             return;
         }
 
-        let stride = self.stride();
-        self.data[(stride * y + (x * self.depth)) as usize] = rgba.r;
-        self.data[(stride * y + (x * self.depth) + 1) as usize] = rgba.g;
-        self.data[(stride * y + (x * self.depth) + 2) as usize] = rgba.b;
-        self.data[(stride * y + (x * self.depth) + 3) as usize] = rgba.a;
+        self.inner
+            .put_pixel(x, y, image::Rgba([rgba.r, rgba.g, rgba.b, rgba.a]));
+    }
+
+    pub fn img_buf(&self) -> &RgbaImage {
+        &self.inner
     }
 
     pub fn alpha_blend(&mut self, x: u32, y: u32, rgba: Color) {
-        if x >= self.width || y >= self.height {
+        if x >= self.width() || y >= self.height() {
             return;
         }
 
@@ -308,31 +296,27 @@ impl Picture {
     }
 
     pub fn get(&self, x: u32, y: u32) -> Color {
-        let stride = self.stride();
+        let pixel = self.inner.get_pixel(x, y);
+
         Color {
-            r: self.data[(stride * y + (x * self.depth)) as usize],
-            g: self.data[(stride * y + (x * self.depth) + 1) as usize],
-            b: self.data[(stride * y + (x * self.depth) + 2) as usize],
-            a: self.data[(stride * y + (x * self.depth) + 3) as usize],
+            r: pixel.channels()[0],
+            g: pixel.channels()[1],
+            b: pixel.channels()[2],
+            a: pixel.channels()[3],
         }
     }
 
     pub fn save(&self, path: &str) -> Result<()> {
-        image::save_buffer_with_format(
-            path,
-            &self.data,
-            self.width,
-            self.height,
-            image::ColorType::Rgba8,
-            image::ImageFormat::Png,
-        )?;
+        self.inner.save_with_format(path, image::ImageFormat::Png)?;
 
         Ok(())
     }
 
-    pub fn create_image(&self) -> DynamicImage {
-        let image = image::RgbaImage::from_raw(self.width, self.height, self.data.clone());
-        image.unwrap().into()
+    pub fn resize(&mut self, width: u32, height: u32) -> &mut Self {
+        let image = image::imageops::resize(&self.inner, width, height, image::imageops::FilterType::Triangle);
+
+        self.inner = image;
+        self
     }
 
     pub fn stroke_string(&mut self, x: u32, y: u32, s: &str, char_size: f32, rgba: &Color) {
@@ -479,8 +463,8 @@ impl Picture {
     }
 
     pub fn fill_rect(&mut self, x0: i32, y0: i32, x1: i32, y1: i32, rgba: &Color) {
-        for x in x0.max(0)..=x1.min(self.width as i32 - 1) {
-            for y in y0.max(0)..=y1.min(self.height as i32 - 1) {
+        for x in x0.max(0)..=x1.min(self.width() as i32 - 1) {
+            for y in y0.max(0)..=y1.min(self.height() as i32 - 1) {
                 self.set(x as u32, y as u32, rgba);
             }
         }

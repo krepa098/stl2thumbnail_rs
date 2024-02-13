@@ -48,7 +48,7 @@ pub extern "C" fn render_stl(path: *const c_char, settings: RenderSettings) -> P
                     backend.render_options.draw_size_hint = settings.size_hint;
 
                     // render
-                    let mut pic = backend.render(&mesh, scale, &aabb, None);
+                    let pic = backend.render(&mesh, scale, &aabb, None);
 
                     let boxed_data = pic.data_as_boxed_slice();
                     let data = boxed_data.as_ptr();
@@ -84,20 +84,20 @@ pub extern "C" fn render_stl(path: *const c_char, settings: RenderSettings) -> P
 /// the highest resolution is returned
 ///
 /// Free the buffer with free_picture_buffer
-pub extern "C" fn extract_gcode_preview(path: *const c_char) -> PictureBuffer {
+pub extern "C" fn extract_gcode_preview(path: *const c_char, width: u32, height: u32) -> PictureBuffer {
     if !path.is_null() {
         let path = unsafe { CStr::from_ptr(path) }.to_str();
 
         if let Ok(path) = path {
-            if let Ok(previews) = gcode::extract_previews_from_file(path) {
-                if let Some(img) = previews.last() {
-                    let img_rgba8 = img.to_rgba8();
+            if let Ok(mut previews) = gcode::extract_previews_from_file(path) {
+                if let Some(pic) = previews.last_mut() {
+                    pic.resize(width, height);
 
-                    let boxed_data = img_rgba8.to_vec().into_boxed_slice();
-                    let data = boxed_data.as_ptr();
-                    let len = img_rgba8.len() as u32;
-                    let stride = img_rgba8.width() * 4;
+                    let stride = pic.width() * 4;
                     let depth = 4;
+                    let boxed_data = pic.data_as_boxed_slice();
+                    let data = boxed_data.as_ptr();
+                    let len = boxed_data.len() as u32;
 
                     // leak the memory owned by boxed_data
                     forget(boxed_data);

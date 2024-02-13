@@ -83,15 +83,11 @@ pub mod gcode_impl {
     ) -> com::sys::HRESULT {
         let data = data.borrow();
 
-        if let Ok(previews) = gcode::extract_previews_from_data(data.as_slice()) {
-            if let Some(preview) = previews.last() {
-                let rgb8_preview = preview
-                    .resize(cx as u32, cx as u32, image::imageops::FilterType::Triangle)
-                    .to_rgba8();
+        if let Ok(mut previews) = gcode::extract_previews_from_data(data.as_slice()) {
+            if let Some(pic) = previews.last_mut() {
+                pic.resize(cx as u32, cx as u32);
 
-                let pciture = Picture::new_with_rgba8_data(rgb8_preview.width(), rgb8_preview.height(), &rgb8_preview);
-
-                *phbmp = create_hbitmap_from_picture(&pciture);
+                *phbmp = create_hbitmap_from_picture(&pic);
                 *pdw_alpha = 0x2; // WTSAT_ARGB
 
                 return S_OK;

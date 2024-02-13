@@ -1,14 +1,15 @@
 use std::io::{Read, Seek};
 
 use anyhow::Result;
-use image::DynamicImage;
 
-pub fn extract_preview_from_file(filename: &str) -> Result<DynamicImage> {
+use crate::picture::Picture;
+
+pub fn extract_preview_from_file(filename: &str) -> Result<Picture> {
     let file = std::fs::File::open(filename)?;
     extract_preview(file)
 }
 
-pub fn extract_preview<R>(r: R) -> Result<DynamicImage>
+pub fn extract_preview<R>(r: R) -> Result<Picture>
 where
     R: Read + Seek,
 {
@@ -19,7 +20,7 @@ where
     thumbnail.read_to_end(&mut buffer)?;
     let image = image::load_from_memory(&buffer)?;
 
-    Ok(image)
+    Ok(Picture::from_img_buffer(image.to_rgba8()))
 }
 
 #[cfg(test)]

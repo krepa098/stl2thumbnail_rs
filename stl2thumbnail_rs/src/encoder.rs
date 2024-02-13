@@ -11,10 +11,9 @@ pub fn encode_gif(path: &str, pictures: &[Picture]) -> Result<()> {
 
     let animation_frames: Vec<_> = pictures
         .iter()
-        .map(Picture::create_image)
-        .map(|img| {
+        .map(|pic| {
             image::Frame::from_parts(
-                img.into(),
+                pic.img_buf().clone(),
                 0,
                 0,
                 Delay::from_saturating_duration(Duration::from_millis(6)),

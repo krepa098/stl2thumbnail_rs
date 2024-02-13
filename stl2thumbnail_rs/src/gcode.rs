@@ -1,20 +1,21 @@
 use anyhow::Result;
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use image::DynamicImage;
 
-pub fn extract_previews_from_file(filename: &str) -> Result<Vec<DynamicImage>> {
+use crate::picture::Picture;
+
+pub fn extract_previews_from_file(filename: &str) -> Result<Vec<Picture>> {
     let content = std::fs::read_to_string(filename)?;
 
     extract_previews(&content)
 }
 
-pub fn extract_previews_from_data(data: &[u8]) -> Result<Vec<DynamicImage>> {
+pub fn extract_previews_from_data(data: &[u8]) -> Result<Vec<Picture>> {
     let content = std::io::read_to_string(std::io::Cursor::new(data))?;
 
     extract_previews(&content)
 }
 
-pub fn extract_previews(content: &str) -> Result<Vec<DynamicImage>> {
+pub fn extract_previews(content: &str) -> Result<Vec<Picture>> {
     // gcode format
     // ...
     // ; thumbnail begin <width>x<height> <?>
@@ -57,21 +58,21 @@ pub fn extract_previews(content: &str) -> Result<Vec<DynamicImage>> {
         }
     }
 
-    let mut images = vec![];
+    let mut pcitures = vec![];
 
     for base64_image in base64_images {
         let image_bytes = STANDARD.decode(base64_image)?;
 
         // try to decode the image (possible formats are 'png', 'jpeg', 'qoi')
         if let Ok(image) = image::load_from_memory(&image_bytes) {
-            images.push(image);
+            pcitures.push(Picture::from_img_buffer(image.to_rgba8()));
         }
     }
 
     // sort by size (ascending order)
-    images.sort_by_key(|a| a.width() * a.height());
+    pcitures.sort_by_key(|a| a.width() * a.height());
 
-    Ok(images)
+    Ok(pcitures)
 }
 
 #[cfg(test)]
