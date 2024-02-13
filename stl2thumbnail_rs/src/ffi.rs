@@ -91,7 +91,7 @@ pub extern "C" fn extract_gcode_preview(path: *const c_char, width: u32, height:
         if let Ok(path) = path {
             if let Ok(mut previews) = gcode::extract_previews_from_file(path) {
                 if let Some(pic) = previews.last_mut() {
-                    pic.resize(width, height);
+                    pic.resize_keep_aspect_ratio(width, height);
 
                     let stride = pic.width() * 4;
                     let depth = 4;

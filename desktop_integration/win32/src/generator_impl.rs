@@ -84,7 +84,7 @@ pub mod gcode_impl {
 
         if let Ok(mut previews) = gcode::extract_previews_from_data(data.as_slice()) {
             if let Some(pic) = previews.last_mut() {
-                pic.resize(cx as u32, cx as u32);
+                pic.resize_keep_aspect_ratio(cx as u32, cx as u32);
 
                 *phbmp = create_hbitmap_from_picture(&pic);
                 *pdw_alpha = 0x2; // WTSAT_ARGB

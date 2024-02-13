@@ -312,11 +312,29 @@ impl Picture {
         Ok(())
     }
 
+    pub fn aspect_ratio(&self) -> f32 {
+        self.width() as f32 / self.height() as f32
+    }
+
     pub fn resize(&mut self, width: u32, height: u32) -> &mut Self {
         let image = image::imageops::resize(&self.inner, width, height, image::imageops::FilterType::Triangle);
 
         self.inner = image;
         self
+    }
+
+    /// Resizes the image to fit within a rectangle of width and height, keeping the aspect ratio
+    pub fn resize_keep_aspect_ratio(&mut self, width: u32, height: u32) -> &mut Self {
+        let aspect_ratio = self.aspect_ratio();
+        let aspect_ratio_inv = 1.0 / aspect_ratio;
+
+        let new_size = if self.width() >= self.height() {
+            (width, (width as f32 * aspect_ratio_inv) as u32)
+        } else {
+            ((height as f32 * aspect_ratio) as u32, height)
+        };
+
+        self.resize(new_size.0, new_size.1)
     }
 
     pub fn stroke_string(&mut self, x: u32, y: u32, s: &str, char_size: f32, rgba: &Color) {
