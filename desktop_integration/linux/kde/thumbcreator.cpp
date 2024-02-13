@@ -68,11 +68,11 @@ bool StlThumbCreator::create(const QString &path, int width, int height, QImage 
     }
     else if (mime_type.inherits("text/x.gcode"))
     {
-        s2t::extract_gcode_preview(path.toStdString().c_str(), width, height);
+        pic = s2t::extract_gcode_preview(path.toStdString().c_str(), width, height);
     }
     else if (mime_type.inherits("model/3mf"))
     {
-        s2t::extract_3mf_preview(path.toStdString().c_str(), width, height);
+        pic = s2t::extract_3mf_preview(path.toStdString().c_str(), width, height);
     }
 
     // failed?
