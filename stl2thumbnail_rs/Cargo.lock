@@ -617,6 +617,7 @@ dependencies = [
  "byteorder",
  "cbindgen",
  "clap 4.4.18",
+ "flate2",
  "image",
  "nalgebra-glm",
  "scan_fmt",

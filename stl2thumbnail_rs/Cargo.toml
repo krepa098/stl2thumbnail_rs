@@ -26,6 +26,7 @@ image = { version = "0.24.8", default-features = false, features = [
     "jpeg",
 ] }
 zip = { version = "0.6.6", default-features = false, features = ["deflate"] }
+flate2 = "1.0.28"
 
 [build-dependencies]
 cbindgen = "0.26.0"

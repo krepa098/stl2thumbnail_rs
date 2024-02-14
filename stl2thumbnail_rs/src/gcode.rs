@@ -1,21 +1,230 @@
-use anyhow::Result;
+use std::{
+    io::{Read, Seek},
+    path::Path,
+};
+
+use anyhow::{bail, Result};
 use base64::{engine::general_purpose::STANDARD, Engine as _};
+use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::picture::Picture;
 
-pub fn extract_previews_from_file(filename: &str) -> Result<Vec<Picture>> {
-    let content = std::fs::read_to_string(filename)?;
-
-    extract_previews(&content)
+#[derive(Debug, Clone, Copy)]
+enum GCodeType {
+    Ascii,
+    Binary,
 }
 
-pub fn extract_previews_from_data(data: &[u8]) -> Result<Vec<Picture>> {
-    let content = std::io::read_to_string(std::io::Cursor::new(data))?;
-
-    extract_previews(&content)
+enum BlockType {
+    FileMetadata = 0,
+    GCode = 1,
+    SlicerMetadata = 2,
+    PrinterMetadata = 3,
+    PrintMetadata = 4,
+    Thumbnail = 5,
 }
 
-pub fn extract_previews(content: &str) -> Result<Vec<Picture>> {
+enum CompressionType {
+    None = 0,
+    Deflate = 1,
+    Heatshrink11_4 = 2,
+    Heatshrink12_4 = 3,
+}
+
+struct Block {
+    kind: BlockType,
+    compression: CompressionType,
+    data: Vec<u8>,
+}
+
+// ref: https://github.com/prusa3d/libbgcode/blob/main/doc/specifications.md
+struct FileHeader {
+    magic_number: u32,
+    _version: u32,
+    checksum_type: u16,
+}
+
+impl FileHeader {
+    fn is_valid(&self) -> bool {
+        self.magic_number.to_ne_bytes() == [b'G', b'C', b'D', b'E']
+    }
+}
+
+impl Block {
+    fn uncompressed_data(&self) -> Result<Vec<u8>> {
+        match self.compression {
+            CompressionType::None => Ok(self.data.clone()),
+            CompressionType::Deflate => {
+                let mut decompress = flate2::Decompress::new(false);
+                let mut decompressed_data = vec![];
+                decompress.decompress_vec(&self.data, &mut decompressed_data, flate2::FlushDecompress::None)?;
+                Ok(decompressed_data)
+            }
+            _ => bail!("unimplemented"),
+        }
+    }
+}
+
+fn detect_format(data: &[u8]) -> Result<GCodeType> {
+    let mut cursor = std::io::Cursor::new(data);
+
+    let header = read_header(&mut cursor);
+
+    if let Ok(header) = header {
+        if header.is_valid() {
+            return Ok(GCodeType::Binary);
+        }
+    }
+
+    Ok(GCodeType::Ascii)
+}
+
+pub fn extract_previews_from_file<P: AsRef<Path>>(filename: P) -> Result<Vec<Picture>> {
+    let data = std::fs::read(filename)?;
+
+    match detect_format(&data) {
+        Ok(GCodeType::Ascii) => extract_previews_ascii(&data),
+        Ok(GCodeType::Binary) => extract_previews_binary(&data),
+        _ => bail!("Cannot detect gcode format"),
+    }
+}
+
+pub fn extract_previews_binary(data: &[u8]) -> Result<Vec<Picture>> {
+    let mut pictures = vec![];
+
+    let mut cursor = std::io::Cursor::new(data);
+
+    let header = read_header(&mut cursor)?;
+
+    // skip header
+    cursor.seek(std::io::SeekFrom::Start(10))?;
+
+    while let Ok(block) = try_read_thumbnail_block(&header, &mut cursor) {
+        if let Some(block) = block {
+            if let BlockType::Thumbnail = block.kind {
+                let block_data = block.uncompressed_data()?;
+                let mut block_reader = std::io::Cursor::new(block_data);
+
+                let mut img_data = vec![];
+                block_reader.read_to_end(&mut img_data)?;
+                let img = image::load_from_memory(&img_data)?;
+
+                pictures.push(Picture::from_img_buffer(img.to_rgba8()));
+            } else {
+                println!("not thumbnail");
+            }
+        }
+    }
+
+    Ok(pictures)
+}
+
+fn read_header<R>(reader: &mut R) -> Result<FileHeader>
+where
+    R: Read + Seek,
+{
+    reader.rewind()?;
+
+    let magic_number = reader.read_u32::<LittleEndian>()?;
+    let version = reader.read_u32::<LittleEndian>()?;
+    let checksum_type = reader.read_u16::<LittleEndian>()?;
+
+    Ok(FileHeader {
+        magic_number,
+        _version: version,
+        checksum_type,
+    })
+}
+
+fn try_read_thumbnail_block<R>(file_header: &FileHeader, reader: &mut R) -> Result<Option<Block>>
+where
+    R: Read + Seek,
+{
+    // The block section has the following format:
+    //
+    // Block Header (8 or 12 bytes, depending on compression)
+    // Block Parameters (size varies with block type)
+    // Block Data (compressed or uncompressed, size given in header)
+    // Optional CRC (present if indicated in file header)
+
+    let block_type = reader.read_u16::<LittleEndian>()?;
+    let compression = reader.read_u16::<LittleEndian>()?;
+    let uncompressed_size = reader.read_u32::<LittleEndian>()?;
+
+    let block_size = if compression == 0 {
+        uncompressed_size
+    } else {
+        reader.read_u32::<LittleEndian>()?
+    };
+
+    let compression_type = match compression {
+        0 => CompressionType::None,
+        1 => CompressionType::Deflate,
+        2 => CompressionType::Heatshrink11_4,
+        3 => CompressionType::Heatshrink12_4,
+        _ => unimplemented!(),
+    };
+
+    let block_kind = match block_type {
+        0 => BlockType::FileMetadata,
+        1 => BlockType::GCode,
+        2 => BlockType::SlicerMetadata,
+        3 => BlockType::PrinterMetadata,
+        4 => BlockType::PrintMetadata,
+        5 => BlockType::Thumbnail,
+        _ => unimplemented!("{block_type}"),
+    };
+
+    // skip parameter sections
+    match block_kind {
+        BlockType::FileMetadata => {
+            reader.read_u16::<LittleEndian>()?;
+        }
+        BlockType::GCode => {
+            reader.read_u16::<LittleEndian>()?;
+        }
+        BlockType::SlicerMetadata => {
+            reader.read_u16::<LittleEndian>()?;
+        }
+        BlockType::PrinterMetadata => {
+            reader.read_u16::<LittleEndian>()?;
+        }
+        BlockType::PrintMetadata => {
+            reader.read_u16::<LittleEndian>()?;
+        }
+        BlockType::Thumbnail => {
+            reader.read_u16::<LittleEndian>()?;
+            reader.read_u16::<LittleEndian>()?;
+            reader.read_u16::<LittleEndian>()?;
+        }
+    }
+
+    // read block data section
+    let mut buf = vec![0u8; block_size as usize];
+    reader.read_exact(&mut buf)?;
+
+    // skip crc if present
+    if file_header.checksum_type == 1 {
+        // crc32
+        reader.read_u32::<LittleEndian>()?;
+    }
+
+    // let mut block = None;
+
+    if let BlockType::Thumbnail = block_kind {
+        return Ok(Some(Block {
+            kind: block_kind,
+            compression: compression_type,
+            data: buf,
+        }));
+    }
+
+    Ok(None)
+}
+
+pub fn extract_previews_ascii(data: &[u8]) -> Result<Vec<Picture>> {
+    let content = String::from_utf8(data.to_vec())?;
+
     // gcode format
     // ...
     // ; thumbnail begin <width>x<height> <?>
@@ -79,11 +288,21 @@ pub fn extract_previews(content: &str) -> Result<Vec<Picture>> {
 mod test {
     use super::*;
 
-    static GCODE: &str = include_str!("test_models/test_cube.gcode");
+    static GCODE_ASCII: &[u8] = include_bytes!("test_models/test_cube.gcode");
+    static GCODE_BIN: &[u8] = include_bytes!("test_models/test_cube.bgcode");
 
     #[test]
-    fn test_parser() {
-        let images = extract_previews(GCODE).unwrap();
+    fn test_parser_ascii() {
+        let images = extract_previews_ascii(GCODE_ASCII).unwrap();
+
+        assert_eq!(images.len(), 2);
+        assert_eq!(images[0].width(), 32);
+        assert_eq!(images[1].width(), 400);
+    }
+
+    #[test]
+    fn test_parser_binary() {
+        let images = extract_previews_binary(GCODE_BIN).unwrap();
 
         assert_eq!(images.len(), 2);
         assert_eq!(images[0].width(), 32);
