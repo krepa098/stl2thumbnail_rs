@@ -45,7 +45,7 @@ RUN mv stl2thumbnail-kde-git-v*.pkg.tar.zst stl2thumbnail-kde-git.pkg.tar.zst
 FROM ubuntu:latest AS build-stage-ubuntu
 
 RUN apt-get update
-RUN apt-get install -y build-essential cmake git cargo extra-cmake-modules kio libkf5kio-dev
+RUN apt-get install -y build-essential cmake git cargo extra-cmake-modules kio libkf5kio-dev libkf5coreaddons-dev appstream
 
 # copy the repo to the container
 WORKDIR /
