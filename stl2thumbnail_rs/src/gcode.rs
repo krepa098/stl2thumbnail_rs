@@ -9,7 +9,7 @@ use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::picture::Picture;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum GCodeType {
     Ascii,
     Binary,
@@ -31,12 +31,6 @@ enum CompressionType {
     Heatshrink12_4 = 3,
 }
 
-struct Block {
-    kind: BlockType,
-    compression: CompressionType,
-    data: Vec<u8>,
-}
-
 // ref: https://github.com/prusa3d/libbgcode/blob/main/doc/specifications.md
 struct FileHeader {
     magic_number: u32,
@@ -48,6 +42,12 @@ impl FileHeader {
     fn is_valid(&self) -> bool {
         self.magic_number.to_ne_bytes() == [b'G', b'C', b'D', b'E']
     }
+}
+
+struct Block {
+    kind: BlockType,
+    compression: CompressionType,
+    data: Vec<u8>,
 }
 
 impl Block {
@@ -82,9 +82,13 @@ fn detect_format(data: &[u8]) -> Result<GCodeType> {
 pub fn extract_previews_from_file<P: AsRef<Path>>(filename: P) -> Result<Vec<Picture>> {
     let data = std::fs::read(filename)?;
 
-    match detect_format(&data) {
-        Ok(GCodeType::Ascii) => extract_previews_ascii(&data),
-        Ok(GCodeType::Binary) => extract_previews_binary(&data),
+    extract_previews_from_data(&data)
+}
+
+pub fn extract_previews_from_data(data: &[u8]) -> Result<Vec<Picture>> {
+    match detect_format(data) {
+        Ok(GCodeType::Ascii) => extract_previews_ascii(data),
+        Ok(GCodeType::Binary) => extract_previews_binary(data),
         _ => bail!("Cannot detect gcode format"),
     }
 }
@@ -307,5 +311,11 @@ mod test {
         assert_eq!(images.len(), 2);
         assert_eq!(images[0].width(), 32);
         assert_eq!(images[1].width(), 400);
+    }
+
+    #[test]
+    fn test_detect_format() {
+        assert_eq!(detect_format(GCODE_BIN).unwrap(), GCodeType::Binary);
+        assert_eq!(detect_format(GCODE_ASCII).unwrap(), GCodeType::Ascii);
     }
 }
