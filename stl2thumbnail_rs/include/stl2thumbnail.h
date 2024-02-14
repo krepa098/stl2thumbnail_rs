@@ -37,6 +37,9 @@ extern "C" {
 /// Renders a mesh to a picture
 ///
 /// Free the buffer with free_picture_buffer
+///
+/// # Safety
+/// path has to be a valid pointer to a null terminated string
 PictureBuffer render_stl(const char *path, RenderSettings settings);
 
 /// Extracts the thumbnail embedded into the gcode
@@ -44,11 +47,17 @@ PictureBuffer render_stl(const char *path, RenderSettings settings);
 /// the highest resolution is returned
 ///
 /// Free the buffer with free_picture_buffer
+///
+/// # Safety
+/// path has to be a valid pointer to a null terminated string
 PictureBuffer extract_gcode_preview(const char *path, uint32_t width, uint32_t height);
 
 /// Extracts the thumbnail embedded into the 3mf file
 ///
 /// Free the buffer with free_picture_buffer
+///
+/// # Safety
+/// path has to be a valid pointer to a null terminated string
 PictureBuffer extract_3mf_preview(const char *path, uint32_t width, uint32_t height);
 
 /// Frees the memory of a PictureBuffer
