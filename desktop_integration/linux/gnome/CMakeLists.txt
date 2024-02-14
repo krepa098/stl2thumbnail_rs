@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.16)
 
 project(stl2thumbnail-gnome VERSION 1.0)
 
@@ -9,4 +9,6 @@ FILES
     gcode.thumbnailer
 DESTINATION 
     ${CMAKE_INSTALL_DATADIR}/thumbnailers
+COMPONENT 
+    gnome
 )

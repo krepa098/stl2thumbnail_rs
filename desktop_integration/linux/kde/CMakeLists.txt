@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 
 project(stl2thumbnail-kde VERSION 1.0)
 
@@ -24,8 +24,22 @@ set(LIBS
 )
 
 add_library(${PROJECT_NAME} MODULE ${SRC_FILES})
-target_link_libraries(${PROJECT_NAME} ${LIBS} stl2thumbnail)
+target_link_libraries(${PROJECT_NAME} ${LIBS} libstl2thumbnail)
 
-install(TARGETS ${PROJECT_NAME} DESTINATION ${PLUGIN_INSTALL_DIR})
+install(
+    TARGETS 
+        ${PROJECT_NAME} 
+    DESTINATION 
+        ${PLUGIN_INSTALL_DIR} 
+    COMPONENT 
+        kde
+)
 
-install(FILES "stl-thumbnailer.desktop" DESTINATION ${SERVICES_INSTALL_DIR})
+install(
+    FILES 
+        "stl-thumbnailer.desktop" 
+    DESTINATION 
+        ${SERVICES_INSTALL_DIR} 
+    COMPONENT 
+        kde
+)
