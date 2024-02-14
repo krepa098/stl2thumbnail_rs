@@ -52,7 +52,7 @@ if(GNOME)
 endif()
 
 if(DEB)
-    # generate a DEB when cpack is run
+    # generate a DEB with cpack
     # run with 'make package'
     SET(CPACK_GENERATOR "DEB")
     SET(CPACK_SET_DESTDIR TRUE)
