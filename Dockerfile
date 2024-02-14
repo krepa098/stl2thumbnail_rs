@@ -1,7 +1,7 @@
 FROM archlinux:latest AS build-stage
 
 # install required packages
-RUN pacman -Syyu --noconfirm --needed archlinux-keyring sudo base-devel cmake extra-cmake-modules
+RUN pacman -Syyu --noconfirm --needed archlinux-keyring sudo base-devel cmake extra-cmake-modules dpkg
 
 # create a build user
 RUN useradd -m builder && \
