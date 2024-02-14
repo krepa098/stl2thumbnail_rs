@@ -290,7 +290,7 @@ fn command_gcode(matches: &ArgMatches) -> Result<()> {
 
     let file_extension = input.extension().map(|ex| ex.to_ascii_lowercase());
 
-    if file_extension == Some("gcode".into()) || file_extension == Some("bcode".into()) {
+    if file_extension == Some("gcode".into()) || file_extension == Some("bgcode".into()) {
         if let Some(preview) = previews.last_mut() {
             preview.resize_keep_aspect_ratio(*width, *height).save(output)?;
         }
