@@ -31,9 +31,6 @@ build() {
   make package
 }
 
-prepare() {
-}
-
 package() {
   # copy build artifacts
   cp ${_pkgname}/build/stl2thumbnail-*-core.deb ${pkgdir}/core.deb
