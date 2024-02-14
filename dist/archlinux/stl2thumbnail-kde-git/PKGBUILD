@@ -42,5 +42,5 @@ package() {
   ar p kde.deb data.tar.gz | tar zx
 
   # cleanup
-  rm *.deb
+  rm core.deb kde.deb
 }
