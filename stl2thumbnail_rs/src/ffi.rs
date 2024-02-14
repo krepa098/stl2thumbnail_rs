@@ -34,9 +34,12 @@ pub struct RenderSettings {
 /// Renders a mesh to a picture
 ///
 /// Free the buffer with free_picture_buffer
-pub extern "C" fn render_stl(path: *const c_char, settings: RenderSettings) -> PictureBuffer {
+///
+/// # Safety
+/// path has to be a valid pointer to a null terminated string
+pub unsafe extern "C" fn render_stl(path: *const c_char, settings: RenderSettings) -> PictureBuffer {
     if !path.is_null() {
-        let path = unsafe { CStr::from_ptr(path) }.to_str();
+        let path = CStr::from_ptr(path).to_str();
 
         if let Ok(path) = path {
             let mut backend = RasterBackend::new(settings.width, settings.height);
@@ -90,9 +93,12 @@ pub extern "C" fn render_stl(path: *const c_char, settings: RenderSettings) -> P
 /// the highest resolution is returned
 ///
 /// Free the buffer with free_picture_buffer
-pub extern "C" fn extract_gcode_preview(path: *const c_char, width: u32, height: u32) -> PictureBuffer {
+///
+/// # Safety
+/// path has to be a valid pointer to a null terminated string
+pub unsafe extern "C" fn extract_gcode_preview(path: *const c_char, width: u32, height: u32) -> PictureBuffer {
     if !path.is_null() {
-        let path = unsafe { CStr::from_ptr(path) }.to_str();
+        let path = CStr::from_ptr(path).to_str();
 
         if let Ok(path) = path {
             if let Ok(mut previews) = gcode::extract_previews_from_file(path) {
@@ -133,9 +139,12 @@ pub extern "C" fn extract_gcode_preview(path: *const c_char, width: u32, height:
 /// Extracts the thumbnail embedded into the 3mf file
 ///
 /// Free the buffer with free_picture_buffer
-pub extern "C" fn extract_3mf_preview(path: *const c_char, width: u32, height: u32) -> PictureBuffer {
+///
+/// # Safety
+/// path has to be a valid pointer to a null terminated string
+pub unsafe extern "C" fn extract_3mf_preview(path: *const c_char, width: u32, height: u32) -> PictureBuffer {
     if !path.is_null() {
-        let path = unsafe { CStr::from_ptr(path) }.to_str();
+        let path = CStr::from_ptr(path).to_str();
 
         if let Ok(path) = path {
             if let Ok(mut pic) = threemf::extract_preview_from_file(path) {
