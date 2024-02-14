@@ -1,4 +1,7 @@
-FROM archlinux:latest AS build-stage
+#####################################
+## Archlinux build
+#####################################
+FROM archlinux:latest AS build-stage-arch
 
 # install required packages
 RUN pacman -Syyu --noconfirm --needed archlinux-keyring sudo base-devel cmake extra-cmake-modules dpkg
@@ -36,7 +39,30 @@ RUN makepkg -cfs --noconfirm
 
 RUN mv stl2thumbnail-kde-git-v*.pkg.tar.zst stl2thumbnail-kde-git.pkg.tar.zst
 
-# prepare files to be copied to host
+#####################################
+## Ubuntu build
+#####################################
+FROM ubuntu-latest AS build-stage-ubuntu
+
+RUN apt-get update
+RUN apt-get install -y build-essential cmake git rust libkf5kiocore5
+
+# copy the repo to the container
+WORKDIR /
+COPY / ./stl2thumbnail_rs
+
+# build
+RUN mkdir ./stl2thumbnail_rs/build
+WORKDIR /stl2thumbnail_rs/build
+RUN cmake -DKDE=ON -DGNOME=ON ..
+RUN cmake package
+
+#####################################
+## Scratch
+## prepare files to be copied to host
+#####################################
 FROM scratch AS export-stage
-COPY --from=build-stage /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-git/stl2thumbnail-git.pkg.tar.zst /
-COPY --from=build-stage /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-kde-git/stl2thumbnail-kde-git.pkg.tar.zst /
+COPY --from=build-stage-arch /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-git/stl2thumbnail-git.pkg.tar.zst /
+COPY --from=build-stage-arch /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-kde-git/stl2thumbnail-kde-git.pkg.tar.zst /
+
+COPY --from=build-stage-ubuntu /stl2thumbnail_rs/build/*.deb /
