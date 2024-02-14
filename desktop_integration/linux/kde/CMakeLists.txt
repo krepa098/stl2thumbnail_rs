@@ -24,6 +24,7 @@ set(LIBS
 )
 
 add_library(${PROJECT_NAME} MODULE ${SRC_FILES})
+add_dependencies(${PROJECT_NAME} libstl2thumbnail)
 target_link_libraries(${PROJECT_NAME} ${LIBS} libstl2thumbnail)
 
 install(

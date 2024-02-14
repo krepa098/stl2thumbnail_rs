@@ -25,24 +25,25 @@ pkgver() {
 }
 
 build() {
-  cd ${_pkgname}/stl2thumbnail_rs
-  cargo build --release
+  cd ${_pkgname}
+  mkdir build && cd build
+  cmake -DCMAKE_BUILD_TYPE=Release -DGNOME=ON -DKDE=OFF ..
+  make package
 }
 
 prepare() {
-  cd ${_pkgname}
 }
 
 package() {
-  mkdir -p ${pkgdir}/usr/bin
-  cp ${_pkgname}/stl2thumbnail_rs/target/release/stl2thumbnail ${pkgdir}/usr/bin
+  # copy build artifacts
+  cp ${_pkgname}/build/stl2thumbnail-*-core.deb ${pkgdir}/core.deb
+  cp ${_pkgname}/build/stl2thumbnail-*-gnome.deb ${pkgdir}/gnome.deb
 
-  mkdir -p ${pkgdir}/usr/lib
-  cp ${_pkgname}/stl2thumbnail_rs/target/release/libstl2thumbnail.so ${pkgdir}/usr/lib
-  
-  mkdir -p ${pkgdir}/usr/share/thumbnailers
-  cp ${_pkgname}/desktop_integration/linux/gnome/*.thumbnailer ${pkgdir}/usr/share/thumbnailers
-  
-  mkdir -p ${pkgdir}/usr/include
-  cp ${_pkgname}/stl2thumbnail_rs/include/*.h ${pkgdir}/usr/include
+  # extract data
+  cd ${pkgdir}
+  ar p core.deb data.tar.gz | tar zx
+  ar p gnome.deb data.tar.gz | tar zx
+
+  # cleanup
+  rm *.deb
 }

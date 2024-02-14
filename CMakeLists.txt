@@ -12,11 +12,11 @@ include(GNUInstallDirs)
 add_custom_target(
     stl2thumbnail-rs ALL
     COMMAND cargo build --release --manifest-path=${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/Cargo.toml
-    DEPENDS ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/target/release/libstl2thumbnail.so
 )
 
 # define lib
 add_library(libstl2thumbnail SHARED IMPORTED)
+add_dependencies(libstl2thumbnail stl2thumbnail-rs)
 target_include_directories(libstl2thumbnail INTERFACE ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/include)
 set_target_properties(libstl2thumbnail PROPERTIES
     IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/target/release/libstl2thumbnail.so

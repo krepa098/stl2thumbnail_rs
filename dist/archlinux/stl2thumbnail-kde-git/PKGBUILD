@@ -24,17 +24,23 @@ pkgver() {
 }
 
 build() {
-  cd "${_pkgname}/desktop_integration/linux/kde/build"
-  cmake .. -DCMAKE_INSTALL_PREFIX="/usr"
-  cmake --build . --config Release
-}
-
-prepare() {
-  cd "${_pkgname}/desktop_integration/linux/kde"
-  mkdir -p build
+  cd ${_pkgname}
+  mkdir build 
+  cd build
+  cmake -DCMAKE_BUILD_TYPE=Release -DGNOME=OFF -DKDE=ON ..
+  make package
 }
 
 package() {
-  cd "${_pkgname}/desktop_integration/linux/kde/build"
-  make DESTDIR="${pkgdir}/" install
+  # copy build artifacts
+  cp ${_pkgname}/build/stl2thumbnail-*-core.deb ${pkgdir}/core.deb
+  cp ${_pkgname}/build/stl2thumbnail-*-kde.deb ${pkgdir}/gnome.deb
+
+  # extract data
+  cd ${pkgdir}
+  ar p core.deb data.tar.gz | tar zx
+  ar p gnome.deb data.tar.gz | tar zx
+
+  # cleanup
+  rm *.deb
 }
