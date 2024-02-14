@@ -8,6 +8,10 @@ option(DEB "Generate a DEB archive" ON)
 
 find_package(Git)
 
+set(${PROJECT_NAME}_VERSION_MAJOR 1)
+set(${PROJECT_NAME}_VERSION_MINOR 0)
+set(${PROJECT_NAME}_VERSION_PATCH 0)
+
 if (GIT_FOUND)
     execute_process(
         COMMAND ${GIT_EXECUTABLE} describe --abbrev=0 --tags
@@ -23,8 +27,6 @@ if (GIT_FOUND)
     list(GET ${PROJECT_NAME}_PARTIAL_VERSION_LIST 1 ${PROJECT_NAME}_VERSION_MINOR)
     if(${PROJECT_NAME}_PARTIAL_VERSION_LIST_LEN GREATER_EQUAL 3)
         list(GET ${PROJECT_NAME}_PARTIAL_VERSION_LIST 2 ${PROJECT_NAME}_VERSION_PATCH)
-    else()
-        set(${PROJECT_NAME}_VERSION_PATCH 0)
     endif()
 
     message(STATUS "Version from git tag: ${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}.${${PROJECT_NAME}_VERSION_PATCH}")
