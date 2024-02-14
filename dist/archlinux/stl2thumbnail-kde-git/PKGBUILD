@@ -34,12 +34,12 @@ build() {
 package() {
   # copy build artifacts
   cp ${_pkgname}/build/stl2thumbnail-*-core.deb ${pkgdir}/core.deb
-  cp ${_pkgname}/build/stl2thumbnail-*-kde.deb ${pkgdir}/gnome.deb
+  cp ${_pkgname}/build/stl2thumbnail-*-kde.deb ${pkgdir}/kde.deb
 
   # extract data
   cd ${pkgdir}
   ar p core.deb data.tar.gz | tar zx
-  ar p gnome.deb data.tar.gz | tar zx
+  ar p kde.deb data.tar.gz | tar zx
 
   # cleanup
   rm *.deb
