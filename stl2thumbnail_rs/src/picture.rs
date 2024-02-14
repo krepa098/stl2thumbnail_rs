@@ -1,7 +1,7 @@
 use anyhow::Result;
 use image::{Pixel, RgbaImage};
-use std::convert::From;
 use std::i32;
+use std::{convert::From, path::Path};
 
 use glm::{Vec2, Vec4};
 use std::ops::{Add, Mul};
@@ -306,7 +306,7 @@ impl Picture {
         }
     }
 
-    pub fn save(&self, path: &str) -> Result<()> {
+    pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<()> {
         self.inner.save_with_format(path, image::ImageFormat::Png)?;
 
         Ok(())

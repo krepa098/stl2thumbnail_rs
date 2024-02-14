@@ -5,6 +5,8 @@ pub mod parser;
 pub mod rasterbackend;
 pub mod zbuffer;
 
+use std::path::Path;
+
 use self::{
     encoder::encode_gif,
     mesh::{Triangle, Vec3},
@@ -13,11 +15,11 @@ use self::{
 use crate::{picture::Picture, Settings};
 use anyhow::Result;
 
-pub fn render_stl(
+pub fn render_stl<P: AsRef<Path>>(
     width: u32,
     height: u32,
     mesh: impl IntoIterator<Item = Triangle> + Copy,
-    path: &str,
+    path: P,
     settings: &Settings,
 ) -> Result<()> {
     if settings.turntable {
@@ -27,11 +29,11 @@ pub fn render_stl(
     }
 }
 
-pub fn render_stl_still(
+pub fn render_stl_still<P: AsRef<Path>>(
     width: u32,
     height: u32,
     mesh: impl IntoIterator<Item = Triangle> + Copy,
-    path: &str,
+    path: P,
     settings: &Settings,
 ) -> Result<()> {
     let mut backend = RasterBackend::new(width, height);
@@ -52,11 +54,11 @@ pub fn render_stl_still(
     Ok(())
 }
 
-pub fn render_stl_turntable_animation(
+pub fn render_stl_turntable_animation<P: AsRef<Path>>(
     width: u32,
     height: u32,
     mesh: impl IntoIterator<Item = Triangle> + Copy,
-    path: &str,
+    path: P,
     settings: &Settings,
 ) -> Result<()> {
     let mut backend = RasterBackend::new(width, height);

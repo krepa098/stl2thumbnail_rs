@@ -1,17 +1,32 @@
 use stl2thumbnail::*;
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use stl::mesh::LazyMesh;
 use stl::parser::Parser;
 
-use clap::{Arg, ArgAction, ArgMatches, Command};
-use std::time::{Duration, Instant};
+use clap::{builder::PathBufValueParser, Arg, ArgAction, ArgMatches, Command};
+use std::{
+    path::PathBuf,
+    time::{Duration, Instant},
+};
 
 fn main() -> Result<()> {
     let stl_command = Command::new("stl")
         .about("Renders an image of an stl file")
-        .arg(Arg::new("INPUT").index(1).help("Input filename").required(true))
-        .arg(Arg::new("OUTPUT").index(2).help("Output filename").required(true))
+        .arg(
+            Arg::new("INPUT")
+                .index(1)
+                .help("Input filename")
+                .required(true)
+                .value_parser(PathBufValueParser::new()),
+        )
+        .arg(
+            Arg::new("OUTPUT")
+                .index(2)
+                .help("Output filename")
+                .required(true)
+                .value_parser(PathBufValueParser::new()),
+        )
         .arg(
             Arg::new("TURNTABLE")
                 .short('t')
@@ -103,8 +118,20 @@ fn main() -> Result<()> {
 
     let gcode_command = Command::new("gcode")
         .about("Extracts a thumbnail embedded in a gcode file")
-        .arg(Arg::new("INPUT").index(1).help("Input filename").required(true))
-        .arg(Arg::new("OUTPUT").index(2).help("Output filename").required(true))
+        .arg(
+            Arg::new("INPUT")
+                .index(1)
+                .help("Input filename")
+                .required(true)
+                .value_parser(PathBufValueParser::new()),
+        )
+        .arg(
+            Arg::new("OUTPUT")
+                .index(2)
+                .help("Output filename")
+                .required(true)
+                .value_parser(PathBufValueParser::new()),
+        )
         .arg(
             Arg::new("WIDTH")
                 .short('w')
@@ -132,8 +159,20 @@ fn main() -> Result<()> {
 
     let threemf_command = Command::new("3mf")
         .about("Extracts a thumbnail embedded in a gcode file")
-        .arg(Arg::new("INPUT").index(1).help("Input filename").required(true))
-        .arg(Arg::new("OUTPUT").index(2).help("Output filename").required(true))
+        .arg(
+            Arg::new("INPUT")
+                .index(1)
+                .help("Input filename")
+                .required(true)
+                .value_parser(PathBufValueParser::new()),
+        )
+        .arg(
+            Arg::new("OUTPUT")
+                .index(2)
+                .help("Output filename")
+                .required(true)
+                .value_parser(PathBufValueParser::new()),
+        )
         .arg(
             Arg::new("WIDTH")
                 .short('w')
@@ -182,8 +221,10 @@ fn main() -> Result<()> {
 }
 
 fn command_stl(matches: &ArgMatches) -> Result<()> {
-    let input = matches.get_one::<String>("INPUT").unwrap();
-    let output = matches.get_one::<String>("OUTPUT").unwrap();
+    let input = matches.get_one::<PathBuf>("INPUT").unwrap();
+    let output = matches.get_one::<PathBuf>("OUTPUT").unwrap();
+
+    let file_extension = input.extension().map(|ex| ex.to_ascii_lowercase());
 
     let width = matches.get_one::<u32>("WIDTH").unwrap();
     let height = matches.get_one::<u32>("HEIGHT").unwrap();
@@ -197,15 +238,13 @@ fn command_stl(matches: &ArgMatches) -> Result<()> {
         grid: *matches.get_one::<bool>("GRID_VISIBLE").unwrap(),
         cam_elevation: *matches.get_one::<f32>("CAM_ELEVATION").unwrap(),
         cam_azimuth: *matches.get_one::<f32>("CAM_AZIMUTH").unwrap(),
-        timeout: matches
-            .get_one::<u64>("TIMEOUT")
-            .map_or(None, |v| Some(Duration::from_millis(*v))),
+        timeout: matches.get_one::<u64>("TIMEOUT").map(|v| Duration::from_millis(*v)),
     };
 
     if settings.verbose {
         println!("Size                  '{}x{}'", width, height);
-        println!("Input                 '{}'", input);
-        println!("Output                '{}'", output);
+        println!("Input                 '{}'", input.to_string_lossy());
+        println!("Output                '{}'", output.to_string_lossy());
         println!("Recalculate normals   '{}'", settings.recalculate_normals);
         println!("Low memory usage mode '{}'", settings.lazy);
         println!("Draw dimensions       '{}'", settings.size_hint);
@@ -215,51 +254,67 @@ fn command_stl(matches: &ArgMatches) -> Result<()> {
         println!("Timeout               {:?}", settings.timeout);
     }
 
-    let start_time = Instant::now();
-    let mut parser = Parser::from_file(&input, settings.recalculate_normals)?;
+    if file_extension == Some("stl".into()) {
+        let start_time = Instant::now();
+        let mut parser = Parser::from_file(input, settings.recalculate_normals)?;
 
-    if settings.lazy {
-        let parsed_mesh = LazyMesh::new(&mut parser);
-        stl::render_stl(*width, *height, &parsed_mesh, &output, &settings)?;
+        if settings.lazy {
+            let parsed_mesh = LazyMesh::new(&mut parser);
+            stl::render_stl(*width, *height, &parsed_mesh, output, &settings)?;
+        } else {
+            let parsed_mesh = parser.read_all()?;
+            stl::render_stl(*width, *height, &parsed_mesh, output, &settings)?;
+        }
+
+        if settings.verbose {
+            println!(
+                "Saved as '{}' (took {}s)",
+                output.to_string_lossy(),
+                Instant::now().duration_since(start_time).as_secs_f32()
+            );
+        }
     } else {
-        let parsed_mesh = parser.read_all()?;
-        stl::render_stl(*width, *height, &parsed_mesh, &output, &settings)?;
-    }
-
-    if settings.verbose {
-        println!(
-            "Saved as '{}' (took {}s)",
-            output,
-            Instant::now().duration_since(start_time).as_secs_f32()
-        );
+        bail!("not a stl file");
     }
 
     Ok(())
 }
 
 fn command_gcode(matches: &ArgMatches) -> Result<()> {
-    let input = matches.get_one::<String>("INPUT").unwrap();
-    let output = matches.get_one::<String>("OUTPUT").unwrap();
+    let input = matches.get_one::<PathBuf>("INPUT").unwrap();
+    let output = matches.get_one::<PathBuf>("OUTPUT").unwrap();
     let width = matches.get_one::<u32>("WIDTH").unwrap();
     let height = matches.get_one::<u32>("HEIGHT").unwrap();
 
-    let mut previews = gcode::extract_previews_from_file(&input)?;
+    let mut previews = gcode::extract_previews_from_file(input)?;
 
-    if let Some(preview) = previews.last_mut() {
-        preview.resize_keep_aspect_ratio(*width, *height).save(output)?;
+    let file_extension = input.extension().map(|ex| ex.to_ascii_lowercase());
+
+    if file_extension == Some("gcode".into()) || file_extension == Some("bcode".into()) {
+        if let Some(preview) = previews.last_mut() {
+            preview.resize_keep_aspect_ratio(*width, *height).save(output)?;
+        }
+    } else {
+        bail!("not a gcode file");
     }
 
     Ok(())
 }
 
 fn command_3mf(matches: &ArgMatches) -> Result<()> {
-    let input = matches.get_one::<String>("INPUT").unwrap();
-    let output = matches.get_one::<String>("OUTPUT").unwrap();
+    let input = matches.get_one::<PathBuf>("INPUT").unwrap();
+    let output = matches.get_one::<PathBuf>("OUTPUT").unwrap();
     let width = *matches.get_one::<u32>("WIDTH").unwrap();
     let height = *matches.get_one::<u32>("HEIGHT").unwrap();
 
-    let mut preview = threemf::extract_preview_from_file(&input)?;
-    preview.resize_keep_aspect_ratio(width, height).save(output)?;
+    let file_extension = input.extension().map(|ex| ex.to_ascii_lowercase());
+
+    if file_extension == Some("3mf".into()) {
+        let mut preview = threemf::extract_preview_from_file(input)?;
+        preview.resize_keep_aspect_ratio(width, height).save(output)?;
+    } else {
+        bail!("not a 3mf file");
+    }
 
     Ok(())
 }

@@ -1,10 +1,10 @@
 use anyhow::Result;
 use image::Delay;
-use std::time::Duration;
+use std::{path::Path, time::Duration};
 
 use crate::picture::Picture;
 
-pub fn encode_gif(path: &str, pictures: &[Picture]) -> Result<()> {
+pub fn encode_gif<P: AsRef<Path>>(path: P, pictures: &[Picture]) -> Result<()> {
     let file = std::fs::File::create(path)?;
     let mut encoder = image::codecs::gif::GifEncoder::new(file);
     encoder.set_repeat(image::codecs::gif::Repeat::Infinite)?;

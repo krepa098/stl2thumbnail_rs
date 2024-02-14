@@ -1,10 +1,13 @@
-use std::io::{Read, Seek};
+use std::{
+    io::{Read, Seek},
+    path::Path,
+};
 
 use anyhow::Result;
 
 use crate::picture::Picture;
 
-pub fn extract_preview_from_file(filename: &str) -> Result<Picture> {
+pub fn extract_preview_from_file<P: AsRef<Path>>(filename: P) -> Result<Picture> {
     let file = std::fs::File::open(filename)?;
     extract_preview(file)
 }

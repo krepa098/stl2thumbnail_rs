@@ -6,6 +6,7 @@ use scan_fmt::scan_fmt;
 use std::fs;
 use std::io;
 use std::io::{BufRead, BufReader, Read, Seek, SeekFrom};
+use std::path::Path;
 
 const HEADER_SIZE: u64 = 80;
 const TRIANGLE_SIZE: u64 = 50;
@@ -118,7 +119,7 @@ impl<T: Read + Seek> Parser<T> {
 }
 
 impl Parser<fs::File> {
-    pub fn from_file(filename: &str, recalculate_normals: bool) -> Result<Self> {
+    pub fn from_file<P: AsRef<Path>>(filename: P, recalculate_normals: bool) -> Result<Self> {
         let file = fs::File::open(filename)?;
         (&file).seek(SeekFrom::Start(0))?;
 
