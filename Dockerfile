@@ -42,7 +42,7 @@ RUN mv stl2thumbnail-kde-git-v*.pkg.tar.zst stl2thumbnail-kde-git.pkg.tar.zst
 #####################################
 ## Ubuntu build
 #####################################
-FROM ubuntu-latest AS build-stage-ubuntu
+FROM ubuntu:latest AS build-stage-ubuntu
 
 RUN apt-get update
 RUN apt-get install -y build-essential cmake git rust libkf5kiocore5
