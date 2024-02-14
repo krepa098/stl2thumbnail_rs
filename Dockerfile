@@ -55,7 +55,7 @@ COPY / ./stl2thumbnail_rs
 RUN mkdir ./stl2thumbnail_rs/build
 WORKDIR /stl2thumbnail_rs/build
 RUN cmake -DKDE=ON -DGNOME=ON ..
-RUN cmake package
+RUN make package
 
 #####################################
 ## Scratch
