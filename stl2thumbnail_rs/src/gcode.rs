@@ -76,7 +76,13 @@ fn detect_format(data: &[u8]) -> Result<GCodeType> {
         }
     }
 
-    Ok(GCodeType::Ascii)
+    // read a couple more bytes to check if they are ascii characters
+    let is_ascii = data.iter().take(128).all(|d| d.is_ascii());
+    if is_ascii {
+        return Ok(GCodeType::Ascii);
+    }
+
+    bail!("cannot determine gcode type")
 }
 
 pub fn extract_previews_from_file<P: AsRef<Path>>(filename: P) -> Result<Vec<Picture>> {
