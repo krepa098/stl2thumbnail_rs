@@ -34,7 +34,7 @@ RUN makepkg -cfs --noconfirm
 #####################################
 ## Ubuntu build
 #####################################
-FROM ubuntu:latest AS build-stage-ubuntu
+FROM ubuntu:focal AS build-stage-ubuntu
 
 RUN apt-get update
 RUN apt-get install -y build-essential cmake git cargo extra-cmake-modules kio libkf5kio-dev libkf5coreaddons-dev appstream
