@@ -28,7 +28,7 @@ RUN makepkg -cfs --noconfirm
 
 # install 'stl2thumbnail-git' pkg required by 'stl2thumbnail-kde-git'
 USER root
-RUN pacman --noconfirm --needed -U stl2thumbnail-git.pkg.tar.zst
+RUN pacman --noconfirm --needed -U stl2thumbnail-git-v*.pkg.tar.zst
 USER builder
 
 # build stl2thumbnail-kde-git
