@@ -30,7 +30,7 @@ Use the precompiled packages from the ```Releases``` section, or compile it your
 git clone https://github.com/krepa098/stl2thumbnail_rs
 cd stl2thumbnail_rs
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DKDE=ON -DGNOME=ON ..
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DKDE=ON -DGNOME=ON ..
 make
 sudo make install
 ```
