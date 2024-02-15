@@ -4,16 +4,17 @@ _pkgname=stl2thumbnail_rs
 pkgname=stl2thumbnail-kde-git
 pkgver=v0.99.r35.g0d7464f
 pkgrel=1
-pkgdesc="Enables Dolphin to generate thumbnails for STL files"
+pkgdesc="Enables Dolphin to generate thumbnails for STL/3MF/GCode files"
 arch=("i686" "x86_64")
 url="https://github.com/krepa098/stl2thumbnail_rs"
 license=("GPL")
 groups=()
-depends=('stl2thumbnail')
-makedepends=("git" "rust" "cmake" "extra-cmake-modules" "kio5")
+conflicts=('stl2thumbnail')
+makedepends=('git' 'rust' 'cmake' 'extra-cmake-modules' 'kio5')
 source=("$_pkgname::git+$url.git#branch=master")
-md5sums=("SKIP")
+md5sums=('SKIP')
 options=('staticlibs')
+provides=('stl2thumbnail-kde')
 
 _gitname="stl2thumbnail_rs"
 _gitbranch="master"

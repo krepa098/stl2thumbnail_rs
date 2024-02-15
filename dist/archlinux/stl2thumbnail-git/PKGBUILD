@@ -10,9 +10,9 @@ url="https://github.com/krepa098/stl2thumbnail_rs"
 license=("GPL")
 groups=()
 depends=()
-makedepends=("git" "rust")
+makedepends=('git' 'rust')
 source=("$_pkgname::git+$url.git#branch=master")
-md5sums=("SKIP")
+md5sums=('SKIP')
 options=('staticlibs')
 provides=('stl2thumbnail')
 
