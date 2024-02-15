@@ -25,7 +25,7 @@ jobs:
             - uses: actions/upload-artifact@v4
               with:
                 name: archlinux pkg
-                path: stl2thumbnail-*.tar.zst
+                path: stl2thumbnail-*.pkg.tar.zst
 
             - uses: actions/upload-artifact@v4
               with:

@@ -59,6 +59,7 @@ RUN make package
 ## prepare files to be copied to host
 #####################################
 FROM scratch AS export-stage
+
 COPY --from=build-stage-arch /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-git/stl2thumbnail-git-v*.pkg.tar.zst /
 COPY --from=build-stage-arch /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-kde-git/stl2thumbnail-kde-git-v*.pkg.tar.zst /
 
