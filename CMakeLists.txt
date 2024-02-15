@@ -46,6 +46,7 @@ add_dependencies(libstl2thumbnail stl2thumbnail-rs)
 target_include_directories(libstl2thumbnail INTERFACE ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/include)
 set_target_properties(libstl2thumbnail PROPERTIES
     IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/target/release/libstl2thumbnail.so
+    IMPORTED_NO_SONAME TRUE
 )
 
 # install lib
