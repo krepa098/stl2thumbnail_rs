@@ -36,8 +36,9 @@ Section
     ; Register as thumbnail provider for STL files
     WriteRegStr HKEY_CLASSES_ROOT ".STL\ShellEx\{E357FCCD-A995-4576-B01F-234630154E96}" "" "{$guid_stl}"
 
-    ; Register as thumbnail provider for GCODE files
+    ; Register as thumbnail provider for GCODE and BGCODE files
     WriteRegStr HKEY_CLASSES_ROOT ".GCODE\ShellEx\{E357FCCD-A995-4576-B01F-234630154E96}" "" "{$guid_gcode}"
+    WriteRegStr HKEY_CLASSES_ROOT ".BGCODE\ShellEx\{E357FCCD-A995-4576-B01F-234630154E96}" "" "{$guid_gcode}"
 
     ; Write the uninstaller
     WriteUninstaller "$InstDir\uninstall.exe"
@@ -55,6 +56,7 @@ Section "Uninstall"
     ; Remove registry keys
     DeleteRegKey HKEY_CLASSES_ROOT ".STL\ShellEx\{E357FCCD-A995-4576-B01F-234630154E96}"
     DeleteRegKey HKEY_CLASSES_ROOT ".GCODE\ShellEx\{E357FCCD-A995-4576-B01F-234630154E96}"
+    DeleteRegKey HKEY_CLASSES_ROOT ".BGCODE\ShellEx\{E357FCCD-A995-4576-B01F-234630154E96}"
 
     ; Remove remaining files
     Delete $INSTDIR\uninstall.exe
