@@ -218,9 +218,9 @@ mod test {
     use super::*;
     use std::io::Cursor;
 
-    const TRI_BIN: &[u8] = include_bytes!("../test_models/triangle.stl");
-    const TRI_ASCII: &[u8] = include_bytes!("../test_models/triangle_ascii.stl");
-    const TRI_ASCII_BROKEN: &[u8] = include_bytes!("../test_models/triangle_ascii_broken.stl");
+    const TRI_BIN: &[u8] = include_bytes!("../../test_models/triangle.stl");
+    const TRI_ASCII: &[u8] = include_bytes!("../../test_models/triangle_ascii.stl");
+    const TRI_ASCII_BROKEN: &[u8] = include_bytes!("../../test_models/triangle_ascii_broken.stl");
 
     #[test]
     fn parser_ascii_test() {

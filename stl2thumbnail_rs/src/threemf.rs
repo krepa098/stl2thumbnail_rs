@@ -30,7 +30,7 @@ where
 mod test {
     use super::*;
 
-    static TEST_FILE: &[u8] = include_bytes!("test_models/test_cube.3mf");
+    static TEST_FILE: &[u8] = include_bytes!("../test_models/test_cube.3mf");
 
     #[test]
     pub fn test_extract_preview() {

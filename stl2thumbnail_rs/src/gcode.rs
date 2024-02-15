@@ -292,8 +292,8 @@ pub fn extract_previews_ascii(data: &[u8]) -> Result<Vec<Picture>> {
 mod test {
     use super::*;
 
-    static GCODE_ASCII: &[u8] = include_bytes!("test_models/test_cube.gcode");
-    static GCODE_BIN: &[u8] = include_bytes!("test_models/test_cube.bgcode");
+    static GCODE_ASCII: &[u8] = include_bytes!("../test_models/test_cube.gcode");
+    static GCODE_BIN: &[u8] = include_bytes!("../test_models/test_cube.bgcode");
 
     #[test]
     fn test_parser_ascii() {
