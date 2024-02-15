@@ -26,8 +26,6 @@ USER builder
 WORKDIR /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-git
 RUN makepkg -cfs --noconfirm
 
-RUN mv stl2thumbnail-git-v*.pkg.tar.zst stl2thumbnail-git.pkg.tar.zst
-
 # install 'stl2thumbnail-git' pkg required by 'stl2thumbnail-kde-git'
 USER root
 RUN pacman --noconfirm --needed -U stl2thumbnail-git.pkg.tar.zst
@@ -37,7 +35,6 @@ USER builder
 WORKDIR /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-kde-git
 RUN makepkg -cfs --noconfirm
 
-RUN mv stl2thumbnail-kde-git-v*.pkg.tar.zst stl2thumbnail-kde-git.pkg.tar.zst
 
 #####################################
 ## Ubuntu build
@@ -62,7 +59,7 @@ RUN make package
 ## prepare files to be copied to host
 #####################################
 FROM scratch AS export-stage
-COPY --from=build-stage-arch /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-git/stl2thumbnail-git.pkg.tar.zst /
-COPY --from=build-stage-arch /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-kde-git/stl2thumbnail-kde-git.pkg.tar.zst /
+COPY --from=build-stage-arch /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-git/stl2thumbnail-git-v*.pkg.tar.zst /
+COPY --from=build-stage-arch /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-kde-git/stl2thumbnail-kde-git-v*.pkg.tar.zst /
 
-COPY --from=build-stage-ubuntu /stl2thumbnail_rs/build/*.deb /
+COPY --from=build-stage-ubuntu /stl2thumbnail_rs/build/stl2thumbnail-*.deb /

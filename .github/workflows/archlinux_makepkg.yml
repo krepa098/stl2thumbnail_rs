@@ -24,10 +24,10 @@ jobs:
 
             - uses: actions/upload-artifact@v4
               with:
-                name: stl2thumbnail-git.pkg.tar.zst
-                path: stl2thumbnail-git.pkg.tar.zst
+                name: archlinux pkg
+                path: stl2thumbnail-*.tar.zst
 
             - uses: actions/upload-artifact@v4
               with:
-                name: stl2thumbnail-kde-git.pkg.tar.zst
-                path: stl2thumbnail-kde-git.pkg.tar.zst
+                name: ubuntu deb
+                path: stl2thumbnail-*.deb
