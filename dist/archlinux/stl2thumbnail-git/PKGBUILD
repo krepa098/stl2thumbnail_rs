@@ -27,7 +27,7 @@ pkgver() {
 build() {
   cd ${_pkgname}
   mkdir build && cd build
-  cmake -DCMAKE_BUILD_TYPE=Release -DGNOME=ON -DKDE=OFF ..
+  cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DGNOME=ON -DKDE=OFF ..
   make package
 }
 

@@ -46,7 +46,7 @@ COPY / ./stl2thumbnail_rs
 # build
 RUN mkdir ./stl2thumbnail_rs/build
 WORKDIR /stl2thumbnail_rs/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DKDE=ON -DGNOME=ON ..
+RUN cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DKDE=ON -DGNOME=ON ..
 RUN make package
 
 #####################################
