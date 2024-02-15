@@ -41,9 +41,6 @@ package() {
   ar p core.deb data.tar.gz | tar zx
   ar p gnome.deb data.tar.gz | tar zx
 
-  # permissions
-  chmod +x ${pkgdir}/**/stl2thumbnail
-
   # cleanup
   rm core.deb gnome.deb
 }
