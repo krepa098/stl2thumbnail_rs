@@ -1,8 +1,8 @@
 [Desktop Entry]
 Type=Service
-Name=STL Models
+Name=STL/3MF/GCode Previews
 X-KDE-ServiceTypes=ThumbCreator
-MimeType=model/stl;application/sla;model/x.stl-ascii;model/x.stl-binary;text/x.gcode;model/3mf;application/vnd.ms-3mfdocument;
+MimeType=model/stl;application/sla;model/x.stl-ascii;model/x.stl-binary;text/x.gcode;model/3mf;application/vnd.ms-3mfdocument;application/octet-stream;
 CacheThumbnail=true
 X-KDE-Library=stl2thumbnail-kde
 ThumbnailerVersion=1

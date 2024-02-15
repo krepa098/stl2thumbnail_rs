@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QImage>
 #include <QString>
 #include <QMimeDatabase>
+#include <QFileInfo>
 
 Q_LOGGING_CATEGORY(LOG_STL_THUMBS, "STLModelThumbs")
 
@@ -52,10 +53,11 @@ void cleanup(void *data)
 bool StlThumbCreator::create(const QString &path, int width, int height, QImage &img)
 {
     auto mime_type = QMimeDatabase().mimeTypeForFile(path);
+    auto file_ext = QFileInfo(path).suffix().toLower();
 
     s2t::PictureBuffer pic;
 
-    if (mime_type.inherits("model/stl"))
+    if (mime_type.inherits("model/stl") && file_ext == "stl")
     {
         s2t::RenderSettings settings;
         settings.width = width;
@@ -66,7 +68,7 @@ bool StlThumbCreator::create(const QString &path, int width, int height, QImage 
         // render
         pic = s2t::render_stl(path.toStdString().c_str(), settings);
     }
-    else if (mime_type.inherits("text/x.gcode"))
+    else if (mime_type.inherits("text/x.gcode") || file_ext == "bgcode")
     {
         pic = s2t::extract_gcode_preview(path.toStdString().c_str(), width, height);
     }
