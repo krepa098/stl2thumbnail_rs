@@ -58,7 +58,7 @@ install(
 
 # install cli
 install(
-    FILES ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/target/release/stl2thumbnail
+    PROGRAMS ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/target/release/stl2thumbnail
     DESTINATION bin
     COMPONENT core
 )
