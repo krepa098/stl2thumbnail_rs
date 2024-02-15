@@ -1,4 +1,4 @@
-name: archlinux makepkg
+name: makepkg
 
 on:
     push:
