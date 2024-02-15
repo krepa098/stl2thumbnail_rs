@@ -26,11 +26,6 @@ USER builder
 WORKDIR /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-git
 RUN makepkg -cfs --noconfirm
 
-# install 'stl2thumbnail-git' pkg required by 'stl2thumbnail-kde-git'
-USER root
-RUN pacman --noconfirm --needed -U stl2thumbnail-git-v*.pkg.tar.zst
-USER builder
-
 # build stl2thumbnail-kde-git
 WORKDIR /build/stl2thumbnail_rs/dist/archlinux/stl2thumbnail-kde-git
 RUN makepkg -cfs --noconfirm
