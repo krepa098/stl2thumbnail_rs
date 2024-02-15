@@ -4,11 +4,11 @@
 
 # stl2thumbnail_rs 
 
-A thumbnail generator for Windows and Linux supporting stl, 3mf, and gcode files.
+A thumbnail generator for Windows and Linux supporting ```stl```, ```3mf```, ```gcode```,  and ```bgcode``` files.
 
 <img src=".media/preview.png" width="600">
 
-## Supported Desktops
+## Supported Desktops and File Formats
 
 | Desktop  | stl                |       gcode [3]    |      bgcode [1,3]  |            3mf [3] |
 |----------|--------------------|--------------------|--------------------|--------------------|
