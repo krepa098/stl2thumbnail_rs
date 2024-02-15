@@ -36,6 +36,9 @@ RUN makepkg -cfs --noconfirm
 #####################################
 FROM ubuntu:focal AS build-stage-ubuntu
 
+ENV TZ=Europe/Brussels
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN apt-get update
 RUN apt-get install -y build-essential cmake git cargo extra-cmake-modules kio libkf5kio-dev libkf5coreaddons-dev appstream
 
