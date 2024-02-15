@@ -1,4 +1,4 @@
 [Thumbnailer Entry]
-TryExec=/usr/local/bin/stl2thumbnail
-Exec=/usr/local/bin/stl2thumbnail 3mf -w %s -h %s %i %o
+TryExec=/usr/bin/stl2thumbnail
+Exec=/usr/bin/stl2thumbnail 3mf -w %s -h %s %i %o
 MimeType=model/3mf;application/vnd.ms-3mfdocument;
