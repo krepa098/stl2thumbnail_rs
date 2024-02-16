@@ -28,6 +28,8 @@ struct RenderSettings {
   uint32_t height;
   /// embed a size hint
   bool size_hint;
+  /// draw grid
+  bool grid;
   /// max duration of the rendering, 0 to disable
   uint64_t timeout;
 };
