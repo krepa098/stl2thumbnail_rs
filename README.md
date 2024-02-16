@@ -24,7 +24,7 @@ A thumbnail generator for Windows and Linux supporting ```stl```, ```3mf```, ```
 
 ## Install
 
-Use the precompiled packages from the ```Releases``` section, or compile it yourself:
+Use the precompiled packages from the [Releases](https://github.com/krepa098/stl2thumbnail_rs/releases) section, or compile it yourself:
 
 ```
 git clone https://github.com/krepa098/stl2thumbnail_rs
