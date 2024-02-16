@@ -1,6 +1,6 @@
 [package]
 name = "stl2thumbnail-win32"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Paul"]
 edition = "2021"
 
