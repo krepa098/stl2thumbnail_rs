@@ -100,7 +100,7 @@ if(DEB)
         list(APPEND CPACK_COMPONENTS_ALL kde)
     endif()
 
-    SET(CPACK_DEBIAN_CORE_PACKAGE_DEPENDS "lbzip2")
+    SET(CPACK_DEBIAN_CORE_PACKAGE_DEPENDS "")
     SET(CPACK_DEBIAN_GNOME_PACKAGE_DEPENDS "stl2thumbnail-core")
     SET(CPACK_DEBIAN_KDE_PACKAGE_DEPENDS "stl2thumbnail-core, libkf5kiocore5")
 
