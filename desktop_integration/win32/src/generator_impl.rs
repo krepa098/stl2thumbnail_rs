@@ -59,6 +59,7 @@ pub mod stl_impl {
             let (aabb, scale) = backend.fit_mesh_scale(&mesh);
             backend.render_options.zoom = 1.05;
             backend.render_options.draw_size_hint = cx >= 256;
+            backend.render_options.grid_visible = false;
             let pic = backend.render(&mesh, scale, &aabb, Some(Duration::from_secs(20)));
 
             *phbmp = create_hbitmap_from_picture(&pic);

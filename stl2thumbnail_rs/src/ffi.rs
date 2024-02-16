@@ -26,6 +26,8 @@ pub struct RenderSettings {
     height: u32,
     /// embed a size hint
     size_hint: bool,
+    /// draw grid
+    grid: bool,
     /// max duration of the rendering, 0 to disable
     timeout: u64,
 }
@@ -53,6 +55,7 @@ pub unsafe extern "C" fn render_stl(path: *const c_char, settings: RenderSetting
 
                     // set flags
                     backend.render_options.draw_size_hint = settings.size_hint;
+                    backend.render_options.grid_visible = settings.grid;
 
                     // render
                     let pic = backend.render(&mesh, scale, &aabb, None);
