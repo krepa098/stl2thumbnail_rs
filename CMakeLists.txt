@@ -51,7 +51,7 @@ set_target_properties(libstl2thumbnail PROPERTIES
 
 # install lib
 install(
-    FILES ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/target/release/libstl2thumbnail.so
+    PROGRAMS ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/target/release/libstl2thumbnail.so
     DESTINATION lib
     COMPONENT core
 )
