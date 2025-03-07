@@ -1,6 +1,5 @@
-use anyhow::Result;
+use anyhow::{bail, Result};
 use image::{Pixel, RgbaImage};
-use std::i32;
 use std::{convert::From, path::Path};
 
 use glm::{Vec2, Vec4};
@@ -35,6 +34,35 @@ impl Color {
         new_p.a = (alpha_c * 255.0) as u8;
         new_p
     }
+
+    pub fn as_vec4(&self) -> Vec4 {
+        Vec4::new(
+            self.r as f32 / 255.0,
+            self.g as f32 / 255.0,
+            self.b as f32 / 255.0,
+            self.a as f32 / 255.0,
+        )
+    }
+
+    pub const TRANSPARENT: Self = Self { r: 0, g: 0, b: 0, a: 0 };
+    pub const BLACK: Self = Self {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 255,
+    };
+    pub const WHITE: Self = Self {
+        r: 255,
+        g: 255,
+        b: 255,
+        a: 255,
+    };
+    pub const DARK_GRAY: Self = Self {
+        r: 20,
+        g: 20,
+        b: 20,
+        a: 255,
+    };
 }
 
 impl Mul<f32> for Color {
@@ -93,16 +121,20 @@ impl From<(f32, f32, f32, f32)> for Color {
     }
 }
 
-impl From<&str> for Color {
-    fn from(rgba: &str) -> Self {
-        assert_eq!(rgba.len(), 8, "expected format: 'RRGGBBAA'");
+impl TryFrom<&str> for Color {
+    type Error = anyhow::Error;
 
-        Self {
-            r: i32::from_str_radix(&rgba[0..2], 16).unwrap() as u8,
-            g: i32::from_str_radix(&rgba[2..4], 16).unwrap() as u8,
-            b: i32::from_str_radix(&rgba[4..6], 16).unwrap() as u8,
-            a: i32::from_str_radix(&rgba[6..8], 16).unwrap() as u8,
+    fn try_from(rgba: &str) -> std::result::Result<Self, Self::Error> {
+        if rgba.len() != 8 {
+            bail!("Color has wrong format. Expected format: RRGGBBAA")
         }
+
+        Ok(Self {
+            r: u8::from_str_radix(&rgba[0..2], 16)?,
+            g: u8::from_str_radix(&rgba[2..4], 16)?,
+            b: u8::from_str_radix(&rgba[4..6], 16)?,
+            a: u8::from_str_radix(&rgba[6..8], 16)?,
+        })
     }
 }
 
@@ -123,12 +155,12 @@ pub struct Picture {
 }
 
 impl Picture {
-    pub fn new(width: u32, height: u32) -> Self {
+    pub fn new(width: u32, height: u32, color: &Color) -> Self {
         let mut pic = Picture {
             inner: RgbaImage::new(width, height),
         };
 
-        pic.fill(&(0, 0, 0, 255).into());
+        pic.fill(color);
         pic
     }
 
@@ -498,14 +530,13 @@ mod tests {
         let rgba: Color = (1.0, 0.5, -1.0, 2.0).into();
         assert_eq!(rgba, (255, 127, 0, 255).into());
 
-        let rgba: Color = "FF00FF00".into();
+        let rgba: Color = "FF00FF00".try_into().unwrap();
         assert_eq!(rgba, (255, 0, 255, 0).into());
     }
 
     #[test]
     fn test_line() {
-        let mut pic = Picture::new(512, 512);
-        pic.fill(&(1.0, 1.0, 1.0, 1.0).into());
+        let mut pic = Picture::new(512, 512, &(1.0, 1.0, 1.0, 1.0).into());
 
         pic.thick_line(0, 0, 512, 512, &(1.0, 0.0, 0.0, 1.0).into(), 4.0);
         pic.thick_line(0, 0, 256, 512, &(1.0, 0.0, 0.0, 1.0).into(), 4.0);
@@ -520,10 +551,10 @@ mod tests {
             .iter()
             .enumerate()
         {
-            pic.stroke_letter(100 + i as u32 * 14, 100, *c, 10.0, &"000000FF".into());
+            pic.stroke_letter(100 + i as u32 * 14, 100, *c, 10.0, &"000000FF".try_into().unwrap());
         }
 
-        pic.stroke_string(100, 200, "12x55mm", 10.0, &"E6E6E6FF".into());
+        pic.stroke_string(100, 200, "12x55mm", 10.0, &"E6E6E6FF".try_into().unwrap());
 
         pic.save("test.png").unwrap();
     }

@@ -48,6 +48,7 @@ pub fn render_stl_still<P: AsRef<Path>>(
     let (aabb, scale) = backend.fit_mesh_scale(mesh);
     backend.render_options.zoom = 1.05;
     backend.render_options.draw_size_hint = settings.size_hint;
+    backend.render_options.background_color = settings.background_color.as_vec4();
 
     backend.render(mesh, scale, &aabb, settings.timeout).save(path)?;
 

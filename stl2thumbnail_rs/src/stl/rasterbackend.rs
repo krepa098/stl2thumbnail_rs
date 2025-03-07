@@ -90,11 +90,9 @@ impl RasterBackend {
     ) -> Picture {
         let start_time = Instant::now();
 
-        let mut pic = Picture::new(self.width, self.height);
+        let mut pic = Picture::new(self.width, self.height, &(&self.render_options.background_color).into());
         let mut zbuf = ZBuffer::new(self.width, self.height);
         let mut scaled_aabb = *aabb;
-
-        pic.fill(&(&self.render_options.background_color).into());
 
         let vp = self.view_projection(self.render_options.zoom);
 
@@ -230,7 +228,7 @@ impl RasterBackend {
                 pic.height() as i32 - (text_size + margin * 2) as i32,
                 pic.width() as i32,
                 pic.height() as i32,
-                &"333333FF".into(),
+                &Color::DARK_GRAY,
             );
 
             pic.stroke_string(
@@ -238,7 +236,7 @@ impl RasterBackend {
                 pic.height() - text_size - margin,
                 &text,
                 text_size as f32,
-                &"FFFFFFFF".into(),
+                &Color::WHITE,
             );
         }
 

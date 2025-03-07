@@ -104,6 +104,14 @@ fn main() -> Result<()> {
                 .help("Show or hide the grid"),
         )
         .arg(
+            Arg::new("BACKGROUND_COLOR")
+                .long("background-color")
+                .action(ArgAction::Set)
+                .value_parser(clap::value_parser!(String))
+                .default_value("FFFFFFFF")
+                .help("Sets the background color (format: RRGGBBAA)"),
+        )
+        .arg(
             Arg::new("TIMEOUT")
                 .long("timeout")
                 .action(ArgAction::Set)
@@ -239,6 +247,11 @@ fn command_stl(matches: &ArgMatches) -> Result<()> {
         cam_elevation: *matches.get_one::<f32>("CAM_ELEVATION").unwrap(),
         cam_azimuth: *matches.get_one::<f32>("CAM_AZIMUTH").unwrap(),
         timeout: matches.get_one::<u64>("TIMEOUT").map(|v| Duration::from_millis(*v)),
+        background_color: matches
+            .get_one::<String>("BACKGROUND_COLOR")
+            .unwrap_or(&"FFFFFFFF".to_string())
+            .as_str()
+            .try_into()?,
     };
 
     if settings.verbose {

@@ -1,3 +1,4 @@
+use picture::Color;
 use std::time::Duration;
 
 pub mod ffi;
@@ -16,4 +17,5 @@ pub struct Settings {
     pub cam_elevation: f32,
     pub cam_azimuth: f32,
     pub timeout: Option<Duration>,
+    pub background_color: Color,
 }
