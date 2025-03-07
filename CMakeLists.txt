@@ -34,40 +34,25 @@ endif()
 
 include(GNUInstallDirs)
 
-# compile lib
+# compile static lib and cli binary
 add_custom_target(
     stl2thumbnail-rs ALL
     COMMAND cargo build --release --manifest-path=${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/Cargo.toml
 )
 
 # define lib
-add_library(libstl2thumbnail SHARED IMPORTED)
+add_library(libstl2thumbnail STATIC IMPORTED)
 add_dependencies(libstl2thumbnail stl2thumbnail-rs)
 target_include_directories(libstl2thumbnail INTERFACE ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/include)
 set_target_properties(libstl2thumbnail PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/target/release/libstl2thumbnail.so
-    IMPORTED_NO_SONAME TRUE
-)
-
-# install lib
-install(
-    PROGRAMS ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/target/release/libstl2thumbnail.so
-    DESTINATION lib
-    COMPONENT core
+    IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/target/release/libstl2thumbnail.a
 )
 
 # install cli
 install(
     PROGRAMS ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/target/release/stl2thumbnail
-    DESTINATION bin
-    COMPONENT core
-)
-
-# install ffi header
-install(
-    FILES ${CMAKE_SOURCE_DIR}/stl2thumbnail_rs/include/stl2thumbnail.h
-    DESTINATION include
-    COMPONENT core
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
+    COMPONENT cli
 )
 
 if(KDE)
@@ -90,7 +75,7 @@ if(DEB)
     set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
     SET(CPACK_DEB_COMPONENT_INSTALL ON)
     set(CPACK_COMPONENTS_GROUPING ONE_PER_GROUP)
-    set(CPACK_COMPONENTS_ALL core)
+    set(CPACK_COMPONENTS_ALL cli)
 
     if(GNOME)
         list(APPEND CPACK_COMPONENTS_ALL gnome)
@@ -100,9 +85,9 @@ if(DEB)
         list(APPEND CPACK_COMPONENTS_ALL kde)
     endif()
 
-    SET(CPACK_DEBIAN_CORE_PACKAGE_DEPENDS "")
-    SET(CPACK_DEBIAN_GNOME_PACKAGE_DEPENDS "stl2thumbnail-core")
-    SET(CPACK_DEBIAN_KDE_PACKAGE_DEPENDS "stl2thumbnail-core, libkf5kiocore5")
+    SET(CPACK_DEBIAN_CLI_PACKAGE_DEPENDS "")
+    SET(CPACK_DEBIAN_GNOME_PACKAGE_DEPENDS "${PROJECT_NAME}-cli")
+    SET(CPACK_DEBIAN_KDE_PACKAGE_DEPENDS "libkf5kiocore5")
 
     include(CPack)
 
