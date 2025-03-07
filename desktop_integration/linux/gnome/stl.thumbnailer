@@ -1,4 +1,4 @@
 [Thumbnailer Entry]
 TryExec=/usr/bin/stl2thumbnail
-Exec=/usr/bin/stl2thumbnail stl -d -w %s -h %s -n %i %o
+Exec=/usr/bin/stl2thumbnail stl -w %s -h %s --background-color 00000000 %i %o
 MimeType=model/stl;application/sla;model/x.stl-ascii;model/x.stl-binary;
