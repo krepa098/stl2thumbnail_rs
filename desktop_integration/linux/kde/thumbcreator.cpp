@@ -63,7 +63,7 @@ bool StlThumbCreator::create(const QString &path, int width, int height, QImage 
         settings.width = width;
         settings.height = height;
         settings.timeout = 20000; // 20s
-        settings.size_hint = height >= 256;
+        settings.size_hint = false;
         settings.grid = false;
         settings.background_color[0] = 0.f; // r
         settings.background_color[1] = 0.f; // g
