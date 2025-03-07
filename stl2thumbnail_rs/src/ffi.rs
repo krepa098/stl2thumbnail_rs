@@ -30,6 +30,8 @@ pub struct RenderSettings {
     grid: bool,
     /// max duration of the rendering, 0 to disable
     timeout: u64,
+    /// background color (rgba)
+    background_color: [f32; 4],
 }
 
 #[no_mangle]
@@ -45,6 +47,7 @@ pub unsafe extern "C" fn render_stl(path: *const c_char, settings: RenderSetting
 
         if let Ok(path) = path {
             let mut backend = RasterBackend::new(settings.width, settings.height);
+            backend.render_options.background_color = settings.background_color.into();
             let parser = Parser::from_file(path, true);
 
             if let Ok(mut parser) = parser {

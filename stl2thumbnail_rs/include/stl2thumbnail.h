@@ -6,6 +6,8 @@
 
 namespace s2t {
 
+struct Color;
+
 struct PictureBuffer {
   /// data in rgba8888 format
   const uint8_t *data;
@@ -32,7 +34,17 @@ struct RenderSettings {
   bool grid;
   /// max duration of the rendering, 0 to disable
   uint64_t timeout;
+  /// background color (rgba)
+  float background_color[4];
 };
+
+
+
+
+
+
+
+
 
 extern "C" {
 
@@ -65,6 +77,6 @@ PictureBuffer extract_3mf_preview(const char *path, uint32_t width, uint32_t hei
 /// Frees the memory of a PictureBuffer
 void free_picture_buffer(PictureBuffer *buffer);
 
-} // extern "C"
+}  // extern "C"
 
-} // namespace s2t
+}  // namespace s2t
