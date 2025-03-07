@@ -12,7 +12,7 @@ use std::io::Cursor;
 use std::time::Duration;
 
 use stl2thumbnail::gcode;
-use stl2thumbnail::picture::Picture;
+use stl2thumbnail::picture::{Color, Picture};
 use stl2thumbnail::stl::parser::Parser;
 use stl2thumbnail::stl::rasterbackend::RasterBackend;
 
@@ -58,8 +58,9 @@ pub mod stl_impl {
             let mut backend = RasterBackend::new(cx as u32, cx as u32);
             let (aabb, scale) = backend.fit_mesh_scale(&mesh);
             backend.render_options.zoom = 1.05;
-            backend.render_options.draw_size_hint = cx >= 256;
+            backend.render_options.draw_size_hint = false;
             backend.render_options.grid_visible = false;
+            backend.render_options.background_color = Color::TRANSPARENT.as_vec4();
             let pic = backend.render(&mesh, scale, &aabb, Some(Duration::from_secs(20)));
 
             *phbmp = create_hbitmap_from_picture(&pic);
