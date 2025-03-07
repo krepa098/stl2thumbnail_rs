@@ -65,6 +65,10 @@ bool StlThumbCreator::create(const QString &path, int width, int height, QImage 
         settings.timeout = 20000; // 20s
         settings.size_hint = height >= 256;
         settings.grid = false;
+        settings.background_color[0] = 0.f; // r
+        settings.background_color[1] = 0.f; // g
+        settings.background_color[2] = 0.f; // b
+        settings.background_color[3] = 0.f; // a
 
         // render
         pic = s2t::render_stl(path.toStdString().c_str(), settings);
