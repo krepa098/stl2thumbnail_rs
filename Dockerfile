@@ -34,7 +34,7 @@ RUN makepkg -cfs --noconfirm
 #####################################
 ## Ubuntu build
 #####################################
-FROM ubuntu:focal AS build-stage-ubuntu
+FROM ubuntu:22.04 AS build-stage-ubuntu
 
 ENV TZ=Europe/Brussels
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
