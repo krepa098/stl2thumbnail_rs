@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(stl2thumbnail VERSION 1.1.0)
+project(stl2thumbnail VERSION 1.2.0)
 
 option(GNOME "Gnome Thumbnailer" ON)
 option(KDE "Kde Thumbnailer" ON)
