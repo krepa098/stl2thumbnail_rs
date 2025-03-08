@@ -36,4 +36,5 @@ sudo make install
 ```
 
 ## License
-This work is licensed under CC BY 4.0 
+
+MIT, see `LICENSE`.
