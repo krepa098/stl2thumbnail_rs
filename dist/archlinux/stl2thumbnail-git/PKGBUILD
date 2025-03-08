@@ -10,7 +10,7 @@ url="https://github.com/krepa098/stl2thumbnail_rs"
 license=("GPL")
 groups=()
 depends=()
-makedepends=('git' 'rust')
+makedepends=('git' 'rust' 'cmake')
 source=("$_pkgname::git+$url.git#branch=master")
 md5sums=('SKIP')
 options=('staticlibs')
@@ -33,14 +33,14 @@ build() {
 
 package() {
   # copy build artifacts
-  cp ${_pkgname}/build/stl2thumbnail-*-core.deb ${pkgdir}/core.deb
+  cp ${_pkgname}/build/stl2thumbnail-*-cli.deb ${pkgdir}/cli.deb
   cp ${_pkgname}/build/stl2thumbnail-*-gnome.deb ${pkgdir}/gnome.deb
 
   # extract data
   cd ${pkgdir}
-  ar p core.deb data.tar.gz | tar zx
+  ar p cli.deb data.tar.gz | tar zx
   ar p gnome.deb data.tar.gz | tar zx
 
   # cleanup
-  rm core.deb gnome.deb
+  rm cli.deb gnome.deb
 }

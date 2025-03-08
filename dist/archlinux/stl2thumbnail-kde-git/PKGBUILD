@@ -9,7 +9,7 @@ arch=("i686" "x86_64")
 url="https://github.com/krepa098/stl2thumbnail_rs"
 license=("GPL")
 groups=()
-conflicts=('stl2thumbnail')
+conflicts=()
 makedepends=('git' 'rust' 'cmake' 'extra-cmake-modules' 'kio5')
 source=("$_pkgname::git+$url.git#branch=master")
 md5sums=('SKIP')
@@ -33,14 +33,12 @@ build() {
 
 package() {
   # copy build artifacts
-  cp ${_pkgname}/build/stl2thumbnail-*-core.deb ${pkgdir}/core.deb
   cp ${_pkgname}/build/stl2thumbnail-*-kde.deb ${pkgdir}/kde.deb
 
   # extract data
   cd ${pkgdir}
-  ar p core.deb data.tar.gz | tar zx
   ar p kde.deb data.tar.gz | tar zx
 
   # cleanup
-  rm core.deb kde.deb
+  rm kde.deb
 }
