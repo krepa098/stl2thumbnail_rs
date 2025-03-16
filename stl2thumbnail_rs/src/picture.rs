@@ -195,6 +195,7 @@ impl Picture {
             bgra.channels_mut()[0] = rgba.channels()[2];
             bgra.channels_mut()[1] = rgba.channels()[1];
             bgra.channels_mut()[2] = rgba.channels()[0];
+            bgra.channels_mut()[3] = rgba.channels()[3];
         }
 
         bgra_img.to_vec()
