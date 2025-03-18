@@ -13,7 +13,7 @@ crate-type = ["cdylib"]
 [dependencies]
 stl2thumbnail = { path = "../../stl2thumbnail_rs" }
 com = { version = "0.6", features = ["production"] }
-winapi = { version = "0.3", features = [
+winapi = { version = "0.3.9", features = [
     "objidlbase",
     "winnt",
     "wtypes",
